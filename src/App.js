@@ -29,13 +29,39 @@ function App() {
       window.removeEventListener('focus', oppdaterOfflineTeller);
     };
   }, []);
+  const [offlineAnleggCount, setOfflineAnleggCount] = useState(0);
+
+  const oppdaterOfflineAnleggTeller = () => {
+    const lagret = JSON.parse(localStorage.getItem('offlineAnlegg')) || [];
+    setOfflineAnleggCount(lagret.length);
+  };
+
+  useEffect(() => {
+    oppdaterOfflineAnleggTeller();
+
+    window.addEventListener('storage', oppdaterOfflineAnleggTeller);
+    window.addEventListener('online', oppdaterOfflineAnleggTeller);
+    window.addEventListener('focus', oppdaterOfflineAnleggTeller);
+
+    return () => {
+      window.removeEventListener('storage', oppdaterOfflineAnleggTeller);
+      window.removeEventListener('online', oppdaterOfflineAnleggTeller);
+      window.removeEventListener('focus', oppdaterOfflineAnleggTeller);
+    };
+  }, []);
 
   return (
     <Router>
       <nav style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
         <Link to="/">Hjem</Link> |{' '}
         <Link to="/anlegg">Anlegg</Link> |{' '}
-        <Link to="/nytt-anlegg">Nytt anlegg</Link> |{' '}
+        <Link to="/nytt-anlegg">
+    Nytt anlegg {offlineAnleggCount > 0 && (
+      <span style={{ backgroundColor: 'orange', color: 'white', padding: '2px 6px', borderRadius: '12px', marginLeft: '5px' }}>
+        {offlineAnleggCount}
+      </span>
+    )}
+  </Link> |{' '}
         <Link to="/meldinger">Meldinger</Link> |{' '}
         <Link to="/ny-melding">Ny melding</Link> |{' '}
          <Link to="/offline-ko">
