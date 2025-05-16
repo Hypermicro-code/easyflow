@@ -49,7 +49,27 @@ function App() {
       window.removeEventListener('focus', oppdaterOfflineAnleggTeller);
     };
   }, []);
+  const [totalOfflineCount, setTotalOfflineCount] = useState(0);
 
+  const oppdaterTotalTeller = () => {
+    const meldinger = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
+    const anlegg = JSON.parse(localStorage.getItem('offlineAnlegg')) || [];
+    setTotalOfflineCount(meldinger.length + anlegg.length);
+  };
+
+  useEffect(() => {
+    oppdaterTotalTeller();
+
+    window.addEventListener('storage', oppdaterTotalTeller);
+    window.addEventListener('online', oppdaterTotalTeller);
+    window.addEventListener('focus', oppdaterTotalTeller);
+
+    return () => {
+      window.removeEventListener('storage', oppdaterTotalTeller);
+      window.removeEventListener('online', oppdaterTotalTeller);
+      window.removeEventListener('focus', oppdaterTotalTeller);
+    };
+  }, []);
   return (
     <Router>
       <nav style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
@@ -64,10 +84,10 @@ function App() {
   </Link> |{' '}
         <Link to="/meldinger">Meldinger</Link> |{' '}
         <Link to="/ny-melding">Ny melding</Link> |{' '}
-         <Link to="/offline-ko">
-    Offline kø {offlineCount > 0 && (
+          <Link to="/offline-ko">
+    Offline kø {totalOfflineCount > 0 && (
       <span style={{ backgroundColor: 'red', color: 'white', padding: '2px 6px', borderRadius: '12px', marginLeft: '5px' }}>
-        {offlineCount}
+        {totalOfflineCount}
       </span>
     )}
   </Link>
