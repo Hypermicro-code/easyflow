@@ -4,13 +4,16 @@ import { db } from '../firebase';
 
 function OfflineKo() {
   const [meldinger, setMeldinger] = useState([]);
+  const [anlegg, setAnlegg] = useState([]);
 
-  const hentLokalKø = () => {
-    const lagret = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
-    setMeldinger(lagret);
+  const hentKøer = () => {
+    const lagretMeldinger = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
+    const lagretAnlegg = JSON.parse(localStorage.getItem('offlineAnlegg')) || [];
+    setMeldinger(lagretMeldinger);
+    setAnlegg(lagretAnlegg);
   };
 
-  const synkroniserMeldinger = async () => {
+  const synkMeldinger = async () => {
     if (meldinger.length === 0) {
       alert('Ingen meldinger i kø.');
       return;
@@ -20,27 +23,50 @@ function OfflineKo() {
       try {
         await addDoc(collection(db, 'meldinger'), melding);
       } catch (error) {
-        console.error('Feil ved synkronisering: ', error);
-        alert('Feil ved synkronisering.');
+        console.error('Feil ved synk av melding: ', error);
+        alert('Feil ved synk av melding.');
         return;
       }
     }
 
     localStorage.removeItem('offlineMeldinger');
-    hentLokalKø();
-    alert('Alle offline-meldinger er synkronisert!');
+    hentKøer();
+    alert('Alle meldinger synkronisert!');
+  };
+
+  const synkAnlegg = async () => {
+    if (anlegg.length === 0) {
+      alert('Ingen anlegg i kø.');
+      return;
+    }
+
+    for (let a of anlegg) {
+      try {
+        await addDoc(collection(db, 'anlegg'), a);
+      } catch (error) {
+        console.error('Feil ved synk av anlegg: ', error);
+        alert('Feil ved synk av anlegg.');
+        return;
+      }
+    }
+
+    localStorage.removeItem('offlineAnlegg');
+    hentKøer();
+    alert('Alle anlegg synkronisert!');
   };
 
   useEffect(() => {
-    hentLokalKø();
+    hentKøer();
   }, []);
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>Offline kø</h1>
+
+      {/* Meldinger */}
+      <h2>Meldinger ({meldinger.length})</h2>
       {meldinger.length > 0 ? (
         <>
-          <p>Det ligger {meldinger.length} melding(er) klar for synkronisering:</p>
           <ul>
             {meldinger.map((m, index) => (
               <li key={index}>
@@ -49,10 +75,28 @@ function OfflineKo() {
               </li>
             ))}
           </ul>
-          <button onClick={synkroniserMeldinger}>Synkroniser nå</button>
+          <button onClick={synkMeldinger}>Synkroniser meldinger</button>
         </>
       ) : (
-        <p>Ingen meldinger i offline-kø.</p>
+        <p>Ingen meldinger i kø.</p>
+      )}
+
+      {/* Anlegg */}
+      <h2>Anlegg ({anlegg.length})</h2>
+      {anlegg.length > 0 ? (
+        <>
+          <ul>
+            {anlegg.map((a, index) => (
+              <li key={index}>
+                <strong>Navn:</strong> {a.navn} <br />
+                <strong>Status:</strong> {a.status}
+              </li>
+            ))}
+          </ul>
+          <button onClick={synkAnlegg}>Synkroniser anlegg</button>
+        </>
+      ) : (
+        <p>Ingen anlegg i kø.</p>
       )}
     </div>
   );
