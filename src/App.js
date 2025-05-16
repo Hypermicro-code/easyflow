@@ -11,7 +11,7 @@ function App() {
       <nav style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
         <Link to="/">Hjem</Link> |{' '}
         <Link to="/anlegg">Anlegg</Link> |{' '}
-        <Link to="/meldinger">Meldinger</Link>
+        <Link to="/meldinger">Meldinger</Link> |{' '}
         <Link to="/ny-melding">Ny melding</Link>
       </nav>
       <Routes>
