@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 
 function Anlegg() {
-  const anlegg = [
-    { id: 1, navn: 'Anlegg 1', status: 'OK' },
-    { id: 2, navn: 'Anlegg 2', status: 'Avvik' },
-  ];
+  const [anlegg, setAnlegg] = useState([]);
+
+  useEffect(() => {
+    const fetchAnlegg = async () => {
+      const anleggCol = collection(db, 'anlegg');
+      const anleggSnapshot = await getDocs(anleggCol);
+      const anleggList = anleggSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setAnlegg(anleggList);
+    };
+
+    fetchAnlegg();
+  }, []);
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Anleggsliste</h1>
+      <h1>Anleggsliste (fra Firebase)</h1>
       <ul>
         {anlegg.map(a => (
           <li key={a.id}>{a.navn} - Status: {a.status}</li>
