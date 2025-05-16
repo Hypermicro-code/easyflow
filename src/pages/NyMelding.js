@@ -5,9 +5,13 @@ import { db } from '../firebase';
 function NyMelding() {
   const [fra, setFra] = useState('');
   const [tekst, setTekst] = useState('');
-  const [offlineQueue, setOfflineQueue] = useState([]);
+  const [offlineCount, setOfflineCount] = useState(0);
 
-  // Sjekker og sender meldinger som ligger lagret lokalt
+  const oppdaterOfflineTeller = () => {
+    const lagret = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
+    setOfflineCount(lagret.length);
+  };
+
   const syncOfflineMeldinger = async () => {
     const lagret = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
     if (lagret.length > 0) {
@@ -16,21 +20,22 @@ function NyMelding() {
           await addDoc(collection(db, 'meldinger'), melding);
         } catch (error) {
           console.error('Feil ved synk av melding: ', error);
-          return; // Avbryt hvis vi ikke får sendt
+          return;
         }
       }
       localStorage.removeItem('offlineMeldinger');
       alert('Offline-meldinger ble synkronisert!');
+      oppdaterOfflineTeller();
     }
   };
 
   useEffect(() => {
-    // Prøver å synkronisere ved lasting av siden
+    oppdaterOfflineTeller();
+
     if (navigator.onLine) {
       syncOfflineMeldinger();
     }
 
-    // Lytter på når nettet kommer tilbake
     window.addEventListener('online', syncOfflineMeldinger);
 
     return () => {
@@ -51,11 +56,11 @@ function NyMelding() {
         alert('Kunne ikke lagre melding.');
       }
     } else {
-      // Lagre i offline-kø
       const lagret = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
       lagret.push(melding);
       localStorage.setItem('offlineMeldinger', JSON.stringify(lagret));
-      alert('Ingen dekning. Melding lagret lokalt og sendes automatisk senere.');
+      alert('Ingen dekning. Melding lagret lokalt.');
+      oppdaterOfflineTeller();
     }
 
     setFra('');
@@ -64,6 +69,11 @@ function NyMelding() {
 
   return (
     <div style={{ padding: '20px' }}>
+      {offlineCount > 0 && (
+        <div style={{ backgroundColor: 'yellow', padding: '10px', marginBottom: '10px' }}>
+          🚨 {offlineCount} melding(er) venter på synkronisering!
+        </div>
+      )}
       <h1>Ny melding</h1>
       <form onSubmit={handleSubmit}>
         <div>
