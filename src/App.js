@@ -12,7 +12,7 @@ function App() {
         <Link to="/">Hjem</Link> |{' '}
         <Link to="/anlegg">Anlegg</Link> |{' '}
         <Link to="/meldinger">Meldinger</Link>
-        <Link to=\"/ny-melding\">Ny melding</Link>
+        <Link to="/ny-melding">Ny melding</Link>
       </nav>
       <Routes>
         <Route path="/" element={<Home />} />
