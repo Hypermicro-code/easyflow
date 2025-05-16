@@ -5,6 +5,7 @@ import Anlegg from './pages/Anlegg';
 import Meldinger from './pages/Meldinger';
 import NyMelding from './pages/NyMelding';
 import OfflineKo from './pages/OfflineKo';
+import NyttAnlegg from './pages/NyttAnlegg';
 
 function App() {
     const [offlineCount, setOfflineCount] = useState(0);
@@ -34,6 +35,7 @@ function App() {
       <nav style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>
         <Link to="/">Hjem</Link> |{' '}
         <Link to="/anlegg">Anlegg</Link> |{' '}
+        <Link to="/nytt-anlegg">Nytt anlegg</Link> |{' '}
         <Link to="/meldinger">Meldinger</Link> |{' '}
         <Link to="/ny-melding">Ny melding</Link> |{' '}
          <Link to="/offline-ko">
@@ -47,6 +49,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/anlegg" element={<Anlegg />} />
+        <Route path="/nytt-anlegg" element={<NyttAnlegg />} />
         <Route path="/meldinger" element={<Meldinger />} />
         <Route path="/ny-melding" element={<NyMelding />} />
         <Route path="/offline-ko" element={<OfflineKo />} />
