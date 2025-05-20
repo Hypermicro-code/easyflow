@@ -144,12 +144,17 @@ function AnleggDetalj() {
           onChange={(e) => setNavn(e.target.value)}
         /><br /><br />
 
-        <label>Status:</label><br />
-        <input
-          type="text"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        /><br /><br />
+<label>Status:</label><br />
+<select
+  value={status}
+  onChange={(e) => setStatus(e.target.value)}
+>
+  <option>Nytt anlegg</option>
+  <option>Under arbeid</option>
+  <option>Til kontroll</option>
+  <option>Ferdig</option>
+  <option>Til utbedring</option>
+</select><br /><br />
 
         <button
           onClick={oppdaterAnlegg}
