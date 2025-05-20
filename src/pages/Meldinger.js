@@ -1,32 +1,94 @@
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { ref, deleteObject } from 'firebase/storage';
+import { db, storage } from '../firebase';
 
 function Meldinger() {
   const [meldinger, setMeldinger] = useState([]);
+  const [fullscreenBilde, setFullscreenBilde] = useState(null);
+
+  const fetchMeldinger = async () => {
+    const meldingCol = collection(db, 'meldinger');
+    const meldingSnapshot = await getDocs(meldingCol);
+    const meldingList = meldingSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setMeldinger(meldingList);
+  };
 
   useEffect(() => {
-    const fetchMeldinger = async () => {
-      const meldingCol = collection(db, 'meldinger');
-      const meldingSnapshot = await getDocs(meldingCol);
-      const meldingList = meldingSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setMeldinger(meldingList);
-    };
-
     fetchMeldinger();
   }, []);
 
+  const slettBilde = async (meldingId, bildeUrl) => {
+    if (!window.confirm('Er du sikker på at du vil slette bildet?')) return;
+
+    try {
+      // 1. Slett bilde fra Storage
+      const bildeRef = ref(storage, bildeUrl);
+      await deleteObject(bildeRef);
+
+      // 2. Fjern bilde-URL i Firestore
+      const meldingRef = doc(db, 'meldinger', meldingId);
+      await updateDoc(meldingRef, { bildeUrl: '' });
+
+      alert('Bilde slettet.');
+      fetchMeldinger();
+    } catch (error) {
+      console.error('Feil ved sletting:', error);
+      alert('Kunne ikke slette bildet.');
+    }
+  };
+
+  const lastNedBilde = (bildeUrl) => {
+    const link = document.createElement('a');
+    link.href = bildeUrl;
+    link.download = 'melding_bilde.jpg';
+    link.click();
+  };
+
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Meldinger (fra Firebase)</h1>
-<ul>
-  {meldinger.map(m => (
-    <li key={m.id}>
-      {m.fra}: {m.tekst}<br />
-      {m.bildeUrl && <img src={m.bildeUrl} alt="Melding bilde" style={{ maxWidth: '200px', marginTop: '5px' }} />}
-    </li>
-  ))}
-</ul>
+      <h1>Meldinger</h1>
+      <ul>
+        {meldinger.map(m => (
+          <li key={m.id} style={{ marginBottom: '30px' }}>
+            <strong>{m.fra}:</strong> {m.tekst}<br />
+            {m.bildeUrl && (
+              <>
+                <img
+                  src={m.bildeUrl}
+                  alt="Melding bilde"
+                  style={{ maxWidth: '200px', marginTop: '10px', cursor: 'pointer' }}
+                  onClick={() => setFullscreenBilde(m.bildeUrl)}
+                /><br />
+                <button onClick={() => lastNedBilde(m.bildeUrl)}>📥 Last ned</button>{' '}
+                <button onClick={() => slettBilde(m.id, m.bildeUrl)}>🗑️ Slett bilde</button>
+              </>
+            )}
+          </li>
+        ))}
+      </ul>
+
+      {/* Fullskjermvisning */}
+      {fullscreenBilde && (
+        <div
+          onClick={() => setFullscreenBilde(null)}
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999
+          }}
+        >
+          <img
+            src={fullscreenBilde}
+            alt="Fullskjerm"
+            style={{ maxWidth: '90%', maxHeight: '90%' }}
+          />
+        </div>
+      )}
     </div>
   );
 }
