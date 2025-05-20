@@ -22,11 +22,9 @@ function Anlegg() {
     if (!window.confirm('Er du sikker på at du vil slette bildet?')) return;
 
     try {
-      // 1. Slett fra Storage
       const bildeRef = ref(storage, bildeUrl);
       await deleteObject(bildeRef);
 
-      // 2. Fjern URL i Firestore
       const anleggRef = doc(db, 'anlegg', anleggId);
       await updateDoc(anleggRef, { bildeUrl: '' });
 
@@ -41,8 +39,16 @@ function Anlegg() {
   const lastNedBilde = (bildeUrl) => {
     const link = document.createElement('a');
     link.href = bildeUrl;
-    link.download = 'anleggsbilde.jpg'; // evt. mer avansert navn
+    link.download = 'anleggsbilde.jpg';
     link.click();
+  };
+
+  const statusEmoji = (status) => {
+    const s = status?.toLowerCase();
+    if (s === 'ok') return '🟢';
+    if (s === 'avvik') return '🔴';
+    if (s === 'pågår' || s === 'under arbeid') return '🟠';
+    return '⚪️';
   };
 
   return (
@@ -51,7 +57,7 @@ function Anlegg() {
       <ul>
         {anlegg.map(a => (
           <li key={a.id} style={{ marginBottom: '30px' }}>
-            <strong>{a.navn}</strong> – Status: {a.status}<br />
+            <strong>{a.navn}</strong> – {statusEmoji(a.status)} {a.status}<br />
             {a.bildeUrl && (
               <>
                 <img
