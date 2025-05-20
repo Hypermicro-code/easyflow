@@ -8,34 +8,56 @@ function NyttAnlegg() {
   const [status, setStatus] = useState('');
   const [bilde, setBilde] = useState(null);
 
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     let bildeUrl = '';
+    let base64 = '';
+
     if (bilde) {
-      const bildeRef = ref(storage, `anlegg/${Date.now()}_${bilde.name}`);
-      try {
-        const snapshot = await uploadBytes(bildeRef, bilde);
-        bildeUrl = await getDownloadURL(snapshot.ref);
-      } catch (error) {
-        console.error('Feil ved bildeopplasting:', error);
-        alert('Kunne ikke laste opp bilde.');
-        return;
+      if (navigator.onLine) {
+        const bildeRef = ref(storage, `anlegg/${Date.now()}_${bilde.name}`);
+        try {
+          const snapshot = await uploadBytes(bildeRef, bilde);
+          bildeUrl = await getDownloadURL(snapshot.ref);
+        } catch (error) {
+          console.error('Feil ved bildeopplasting:', error);
+          alert('Kunne ikke laste opp bilde.');
+          return;
+        }
+      } else {
+        base64 = await toBase64(bilde);
       }
     }
 
-    const anlegg = { navn, status, bildeUrl };
+    const anlegg = { navn, status, bildeUrl, bildeBase64: base64 };
 
-    try {
-      await addDoc(collection(db, 'anlegg'), anlegg);
-      alert('Anlegg lagret!');
-      setNavn('');
-      setStatus('');
-      setBilde(null);
-    } catch (error) {
-      console.error('Feil ved lagring av anlegg: ', error);
-      alert('Kunne ikke lagre anlegg.');
+    if (navigator.onLine) {
+      try {
+        await addDoc(collection(db, 'anlegg'), anlegg);
+        alert('Anlegg lagret!');
+      } catch (error) {
+        console.error('Feil ved lagring av anlegg: ', error);
+        alert('Kunne ikke lagre anlegg.');
+      }
+    } else {
+      const lagret = JSON.parse(localStorage.getItem('offlineAnlegg')) || [];
+      lagret.push(anlegg);
+      localStorage.setItem('offlineAnlegg', JSON.stringify(lagret));
+      alert('Ingen dekning. Anlegg lagret lokalt.');
     }
+
+    setNavn('');
+    setStatus('');
+    setBilde(null);
   };
 
   return (
