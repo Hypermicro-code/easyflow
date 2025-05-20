@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
+import Toast from '../components/Toast';
 
 function NyMelding() {
   const [fra, setFra] = useState('');
   const [tekst, setTekst] = useState('');
   const [bilde, setBilde] = useState(null);
+  const [toast, setToast] = useState('');
 
   const toBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -30,7 +32,7 @@ function NyMelding() {
           bildeUrl = await getDownloadURL(snapshot.ref);
         } catch (error) {
           console.error('Feil ved bildeopplasting:', error);
-          alert('Kunne ikke laste opp bilde.');
+          setToast('Feil: kunne ikke laste opp bilde.');
           return;
         }
       } else {
@@ -38,21 +40,27 @@ function NyMelding() {
       }
     }
 
-    const melding = { fra, tekst, bildeUrl, bildeBase64: base64, opprettet: new Date().toISOString()};
+    const melding = {
+      fra,
+      tekst,
+      bildeUrl,
+      bildeBase64: base64,
+      opprettet: new Date().toISOString()
+    };
 
     if (navigator.onLine) {
       try {
         await addDoc(collection(db, 'meldinger'), melding);
-        alert('Melding lagret!');
+        setToast('Melding lagret');
       } catch (error) {
         console.error('Feil ved lagring av melding: ', error);
-        alert('Kunne ikke lagre melding.');
+        setToast('Feil: kunne ikke lagre melding.');
       }
     } else {
       const lagret = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
       lagret.push(melding);
       localStorage.setItem('offlineMeldinger', JSON.stringify(lagret));
-      alert('Ingen dekning. Melding lagret lokalt.');
+      setToast('Ingen dekning – melding lagret lokalt');
     }
 
     setFra('');
@@ -78,6 +86,8 @@ function NyMelding() {
         </div>
         <button type='submit'>Send melding</button>
       </form>
+
+      {toast && <Toast message={toast} onClose={() => setToast('')} />}
     </div>
   );
 }
