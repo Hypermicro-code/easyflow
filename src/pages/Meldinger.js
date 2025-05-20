@@ -20,16 +20,11 @@ function Meldinger() {
 
   const slettBilde = async (meldingId, bildeUrl) => {
     if (!window.confirm('Er du sikker på at du vil slette bildet?')) return;
-
     try {
-      // 1. Slett bilde fra Storage
       const bildeRef = ref(storage, bildeUrl);
       await deleteObject(bildeRef);
-
-      // 2. Fjern bilde-URL i Firestore
       const meldingRef = doc(db, 'meldinger', meldingId);
       await updateDoc(meldingRef, { bildeUrl: '' });
-
       alert('Bilde slettet.');
       fetchMeldinger();
     } catch (error) {
@@ -52,6 +47,11 @@ function Meldinger() {
         {meldinger.map(m => (
           <li key={m.id} style={{ marginBottom: '30px' }}>
             <strong>{m.fra}:</strong> {m.tekst}<br />
+            {m.opprettet && (
+              <div style={{ fontSize: '0.85em', color: '#666' }}>
+                Opprettet: {new Date(m.opprettet).toLocaleString()}
+              </div>
+            )}
             {m.bildeUrl && (
               <>
                 <img
@@ -68,7 +68,6 @@ function Meldinger() {
         ))}
       </ul>
 
-      {/* Fullskjermvisning */}
       {fullscreenBilde && (
         <div
           onClick={() => setFullscreenBilde(null)}
