@@ -7,6 +7,7 @@ import Toast from '../components/Toast';
 function NyttAnlegg() {
   const [navn, setNavn] = useState('');
   const [status, setStatus] = useState('');
+  const [anleggsnummer, setAnleggsnummer] = useState('');
   const [bilde, setBilde] = useState(null);
   const [toast, setToast] = useState('');
 
@@ -43,6 +44,7 @@ function NyttAnlegg() {
     const anlegg = {
       navn,
       status,
+      anleggsnummer: parseInt(anleggsnummer),
       bildeUrl,
       bildeBase64: base64,
       opprettet: new Date().toISOString()
@@ -65,6 +67,7 @@ function NyttAnlegg() {
 
     setNavn('');
     setStatus('');
+    setAnleggsnummer('');
     setBilde(null);
   };
 
@@ -79,6 +82,10 @@ function NyttAnlegg() {
         <div>
           <label>Status:</label><br />
           <input type='text' value={status} onChange={(e) => setStatus(e.target.value)} required />
+        </div>
+        <div>
+          <label>Anleggsnummer:</label><br />
+          <input type='number' value={anleggsnummer} onChange={(e) => setAnleggsnummer(e.target.value)} required />
         </div>
         <div>
           <label>Legg til bilde (valgfritt):</label><br />
