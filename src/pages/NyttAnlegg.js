@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
+import Toast from '../components/Toast';
 
 function NyttAnlegg() {
   const [navn, setNavn] = useState('');
   const [status, setStatus] = useState('');
   const [bilde, setBilde] = useState(null);
+  const [toast, setToast] = useState('');
 
   const toBase64 = (file) =>
     new Promise((resolve, reject) => {
@@ -30,7 +32,7 @@ function NyttAnlegg() {
           bildeUrl = await getDownloadURL(snapshot.ref);
         } catch (error) {
           console.error('Feil ved bildeopplasting:', error);
-          alert('Kunne ikke laste opp bilde.');
+          setToast('Feil: kunne ikke laste opp bilde.');
           return;
         }
       } else {
@@ -38,21 +40,27 @@ function NyttAnlegg() {
       }
     }
 
-   const anlegg = {navn,status,bildeUrl,bildeBase64: base64,opprettet: new Date().toISOString()};
+    const anlegg = {
+      navn,
+      status,
+      bildeUrl,
+      bildeBase64: base64,
+      opprettet: new Date().toISOString()
+    };
 
     if (navigator.onLine) {
       try {
         await addDoc(collection(db, 'anlegg'), anlegg);
-        alert('Anlegg lagret!');
+        setToast('Anlegg lagret');
       } catch (error) {
         console.error('Feil ved lagring av anlegg: ', error);
-        alert('Kunne ikke lagre anlegg.');
+        setToast('Feil: kunne ikke lagre anlegg.');
       }
     } else {
       const lagret = JSON.parse(localStorage.getItem('offlineAnlegg')) || [];
       lagret.push(anlegg);
       localStorage.setItem('offlineAnlegg', JSON.stringify(lagret));
-      alert('Ingen dekning. Anlegg lagret lokalt.');
+      setToast('Ingen dekning – anlegg lagret lokalt');
     }
 
     setNavn('');
@@ -78,6 +86,8 @@ function NyttAnlegg() {
         </div>
         <button type='submit'>Lag Anlegg</button>
       </form>
+
+      {toast && <Toast message={toast} onClose={() => setToast('')} />}
     </div>
   );
 }
