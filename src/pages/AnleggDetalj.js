@@ -164,6 +164,26 @@ function AnleggDetalj() {
         onBekreft={sletteType === 'bilde' ? slettBilde : slettAnlegg}
         onAvbryt={() => setVisModal(false)}
       />
+        {!anlegg.arkivert && (
+  <button
+    onClick={async () => {
+      await updateDoc(doc(db, 'anlegg', id), { arkivert: true });
+      setToast('Anlegg arkivert');
+      navigate('/anlegg');
+    }}
+    style={{
+      marginTop: '10px',
+      backgroundColor: '#999',
+      color: 'white',
+      padding: '10px 20px',
+      border: 'none',
+      borderRadius: '6px',
+      cursor: 'pointer'
+    }}
+  >
+    📦 Arkiver anlegg
+  </button>
+)}
     </div>
   );
 }
