@@ -8,34 +8,56 @@ function NyMelding() {
   const [tekst, setTekst] = useState('');
   const [bilde, setBilde] = useState(null);
 
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+    });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     let bildeUrl = '';
+    let base64 = '';
+
     if (bilde) {
-      const bildeRef = ref(storage, `meldinger/${Date.now()}_${bilde.name}`);
-      try {
-        const snapshot = await uploadBytes(bildeRef, bilde);
-        bildeUrl = await getDownloadURL(snapshot.ref);
-      } catch (error) {
-        console.error('Feil ved bildeopplasting:', error);
-        alert('Kunne ikke laste opp bilde.');
-        return;
+      if (navigator.onLine) {
+        const bildeRef = ref(storage, `meldinger/${Date.now()}_${bilde.name}`);
+        try {
+          const snapshot = await uploadBytes(bildeRef, bilde);
+          bildeUrl = await getDownloadURL(snapshot.ref);
+        } catch (error) {
+          console.error('Feil ved bildeopplasting:', error);
+          alert('Kunne ikke laste opp bilde.');
+          return;
+        }
+      } else {
+        base64 = await toBase64(bilde);
       }
     }
 
-    const melding = { fra, tekst, bildeUrl };
+    const melding = { fra, tekst, bildeUrl, bildeBase64: base64 };
 
-    try {
-      await addDoc(collection(db, 'meldinger'), melding);
-      alert('Melding lagret!');
-      setFra('');
-      setTekst('');
-      setBilde(null);
-    } catch (error) {
-      console.error('Feil ved lagring av melding: ', error);
-      alert('Kunne ikke lagre melding.');
+    if (navigator.onLine) {
+      try {
+        await addDoc(collection(db, 'meldinger'), melding);
+        alert('Melding lagret!');
+      } catch (error) {
+        console.error('Feil ved lagring av melding: ', error);
+        alert('Kunne ikke lagre melding.');
+      }
+    } else {
+      const lagret = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
+      lagret.push(melding);
+      localStorage.setItem('offlineMeldinger', JSON.stringify(lagret));
+      alert('Ingen dekning. Melding lagret lokalt.');
     }
+
+    setFra('');
+    setTekst('');
+    setBilde(null);
   };
 
   return (
