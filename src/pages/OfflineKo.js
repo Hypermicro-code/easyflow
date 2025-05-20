@@ -2,11 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
+import Toast from '../components/Toast';
+import BekreftModal from '../components/BekreftModal';
 
 function OfflineKo() {
   const [meldinger, setMeldinger] = useState([]);
   const [anlegg, setAnlegg] = useState([]);
   const [fullscreenBilde, setFullscreenBilde] = useState(null);
+  const [toast, setToast] = useState('');
+  const [visModal, setVisModal] = useState(false);
+  const [slettValg, setSlettValg] = useState(null); // { type: 'melding'|'anlegg', index }
 
   const hentKøer = () => {
     const lagretMeldinger = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
@@ -14,20 +19,31 @@ function OfflineKo() {
     setMeldinger(lagretMeldinger);
     setAnlegg(lagretAnlegg);
   };
-const slettMeldingFraKø = (index) => {
-  const oppdatert = [...meldinger];
-  oppdatert.splice(index, 1);
-  localStorage.setItem('offlineMeldinger', JSON.stringify(oppdatert));
-  setMeldinger(oppdatert);
-};
 
-const slettAnleggFraKø = (index) => {
-  const oppdatert = [...anlegg];
-  oppdatert.splice(index, 1);
-  localStorage.setItem('offlineAnlegg', JSON.stringify(oppdatert));
-  setAnlegg(oppdatert);
-};
-  
+  const slettFraKø = () => {
+    if (!slettValg) return;
+    const { type, index } = slettValg;
+
+    if (type === 'melding') {
+      const ny = [...meldinger];
+      ny.splice(index, 1);
+      localStorage.setItem('offlineMeldinger', JSON.stringify(ny));
+      setMeldinger(ny);
+      setToast('Melding fjernet fra kø');
+    }
+
+    if (type === 'anlegg') {
+      const ny = [...anlegg];
+      ny.splice(index, 1);
+      localStorage.setItem('offlineAnlegg', JSON.stringify(ny));
+      setAnlegg(ny);
+      setToast('Anlegg fjernet fra kø');
+    }
+
+    setSlettValg(null);
+    setVisModal(false);
+  };
+
   const dataURLtoBlob = (dataurl) => {
     const arr = dataurl.split(',');
     const mime = arr[0].match(/:(.*?);/)[1];
@@ -57,13 +73,14 @@ const slettAnleggFraKø = (index) => {
       await addDoc(collection(db, 'meldinger'), {
         fra: melding.fra,
         tekst: melding.tekst,
-        bildeUrl
+        bildeUrl,
+        opprettet: melding.opprettet || new Date().toISOString()
       });
     }
 
     localStorage.removeItem('offlineMeldinger');
     hentKøer();
-    alert('Meldinger synkronisert!');
+    setToast('Meldinger synkronisert');
   };
 
   const synkAnlegg = async () => {
@@ -78,13 +95,14 @@ const slettAnleggFraKø = (index) => {
       await addDoc(collection(db, 'anlegg'), {
         navn: a.navn,
         status: a.status,
-        bildeUrl
+        bildeUrl,
+        opprettet: a.opprettet || new Date().toISOString()
       });
     }
 
     localStorage.removeItem('offlineAnlegg');
     hentKøer();
-    alert('Anlegg synkronisert!');
+    setToast('Anlegg synkronisert');
   };
 
   const lastNedBase64 = (dataUrl, filnavn) => {
@@ -111,6 +129,11 @@ const slettAnleggFraKø = (index) => {
               <li key={index} style={{ marginBottom: '20px' }}>
                 <strong>Fra:</strong> {m.fra}<br />
                 <strong>Tekst:</strong> {m.tekst}<br />
+                {m.opprettet && (
+                  <div style={{ fontSize: '0.85em', color: '#666' }}>
+                    Lagret: {new Date(m.opprettet).toLocaleString()}
+                  </div>
+                )}
                 {(m.bildeBase64 || m.bildeUrl) && (
                   <>
                     <img
@@ -119,8 +142,8 @@ const slettAnleggFraKø = (index) => {
                       style={{ maxWidth: '200px', cursor: 'pointer', marginTop: '5px' }}
                       onClick={() => setFullscreenBilde(m.bildeUrl || m.bildeBase64)}
                     /><br />
-                    <button onClick={() => lastNedBase64(m.bildeUrl || m.bildeBase64, 'melding_offline.jpg')}>📥 Last ned</button>
-                    <button onClick={() => slettMeldingFraKø(index)}>🗑️ Slett fra kø</button>
+                    <button onClick={() => lastNedBase64(m.bildeUrl || m.bildeBase64, 'melding_offline.jpg')}>📥 Last ned</button>{' '}
+                    <button onClick={() => { setSlettValg({ type: 'melding', index }); setVisModal(true); }}>🗑️ Slett fra kø</button>
                   </>
                 )}
               </li>
@@ -141,6 +164,11 @@ const slettAnleggFraKø = (index) => {
               <li key={index} style={{ marginBottom: '20px' }}>
                 <strong>Navn:</strong> {a.navn}<br />
                 <strong>Status:</strong> {a.status}<br />
+                {a.opprettet && (
+                  <div style={{ fontSize: '0.85em', color: '#666' }}>
+                    Lagret: {new Date(a.opprettet).toLocaleString()}
+                  </div>
+                )}
                 {(a.bildeBase64 || a.bildeUrl) && (
                   <>
                     <img
@@ -149,8 +177,8 @@ const slettAnleggFraKø = (index) => {
                       style={{ maxWidth: '200px', cursor: 'pointer', marginTop: '5px' }}
                       onClick={() => setFullscreenBilde(a.bildeUrl || a.bildeBase64)}
                     /><br />
-                    <button onClick={() => lastNedBase64(a.bildeUrl || a.bildeBase64, 'anlegg_offline.jpg')}>📥 Last ned</button>
-                    <button onClick={() => slettAnleggFraKø(index)}>🗑️ Slett fra kø</button>
+                    <button onClick={() => lastNedBase64(a.bildeUrl || a.bildeBase64, 'anlegg_offline.jpg')}>📥 Last ned</button>{' '}
+                    <button onClick={() => { setSlettValg({ type: 'anlegg', index }); setVisModal(true); }}>🗑️ Slett fra kø</button>
                   </>
                 )}
               </li>
@@ -183,6 +211,14 @@ const slettAnleggFraKø = (index) => {
           />
         </div>
       )}
+
+      {toast && <Toast message={toast} onClose={() => setToast('')} />}
+      <BekreftModal
+        vis={visModal}
+        melding="Er du sikker på at du vil slette dette fra køen?"
+        onBekreft={slettFraKø}
+        onAvbryt={() => setVisModal(false)}
+      />
     </div>
   );
 }
