@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db, storage } from '../firebase';
 import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
@@ -20,6 +20,8 @@ function AnleggDetalj() {
   const [navn, setNavn] = useState('');
   const [status, setStatus] = useState('');
   const [anleggsnummer, setAnleggsnummer] = useState('');
+
+  const fileInputRef = useRef(null);
 
   const fetchAnlegg = async () => {
     const docRef = doc(db, 'anlegg', id);
@@ -116,6 +118,10 @@ function AnleggDetalj() {
     return '⚪️';
   };
 
+  const triggerFileDialog = () => {
+    fileInputRef.current.click();
+  };
+
   if (!anlegg) return <div style={{ padding: '20px' }}>Laster anlegg...</div>;
 
   return (
@@ -150,15 +156,31 @@ function AnleggDetalj() {
           style={{ marginBottom: '10px', padding: '10px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white' }}
         >
           💾 Lagre endringer
-        </button>
+        </button>{' '}
 
+        <button
+          onClick={triggerFileDialog}
+          style={{
+            backgroundColor: '#2196F3',
+            color: 'white',
+            padding: '8px 16px',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer'
+          }}
+        >
+          📷 Last opp bilde(r)
+        </button>
         <input
+          ref={fileInputRef}
           type="file"
           accept="image/*"
-          multiple
           capture="environment"
+          multiple
           onChange={(e) => lastOppBilder(e.target.files)}
+          style={{ display: 'none' }}
         />
+
         <p><strong>Opprettet:</strong> {new Date(anlegg.opprettet).toLocaleString()}</p>
 
         {!anlegg.arkivert && (
