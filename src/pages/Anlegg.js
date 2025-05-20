@@ -25,13 +25,15 @@ function Anlegg() {
     fetchAnlegg();
   }, []);
 
-  const statusEmoji = (status) => {
-    const s = status?.toLowerCase();
-    if (s === 'ok') return '🟢';
-    if (s === 'avvik') return '🔴';
-    if (s === 'pågår' || s === 'under arbeid') return '🟠';
-    return '⚪️';
-  };
+const statusEmoji = (status) => {
+  const s = status?.toLowerCase();
+  if (s === 'nytt anlegg') return '🆕';
+  if (s === 'under arbeid') return '🛠️';
+  if (s === 'til kontroll') return '🔍';
+  if (s === 'ferdig') return '✅';
+  if (s === 'til utbedring') return '⚠️';
+  return '⚪️';
+};
 
   return (
     <div style={{ padding: '20px' }}>
