@@ -70,10 +70,18 @@ function Anlegg() {
       <h1>Anleggsliste</h1>
       <ul>
         {anlegg.map(a => (
-          <li key={a.id} style={{ marginBottom: '30px' }}>
+          <li key={a.id} style={{
+            marginBottom: '20px',
+            padding: '16px',
+            backgroundColor: '#f9f9f9',
+            borderRadius: '10px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            fontSize: '1.05em',
+            lineHeight: '1.6'
+          }}>
             <strong>{a.navn}</strong> – {statusEmoji(a.status)} {a.status}<br />
             {a.opprettet && (
-              <div style={{ fontSize: '0.85em', color: '#666' }}>
+              <div style={{ fontSize: '0.9em', color: '#666' }}>
                 Opprettet: {new Date(a.opprettet).toLocaleString()}
               </div>
             )}
@@ -82,11 +90,15 @@ function Anlegg() {
                 <img
                   src={a.bildeUrl}
                   alt="Anleggsbilde"
-                  style={{ maxWidth: '200px', marginTop: '10px', cursor: 'pointer' }}
+                  style={{ maxWidth: '100%', maxHeight: '250px', marginTop: '10px', cursor: 'pointer' }}
                   onClick={() => setFullscreenBilde(a.bildeUrl)}
                 /><br />
-                <button onClick={() => lastNedBilde(a.bildeUrl)}>📥 Last ned</button>{' '}
-                <button onClick={() => startSletting(a.id, a.bildeUrl)}>🗑️ Slett bilde</button>
+                <button onClick={() => lastNedBilde(a.bildeUrl)} style={{ marginRight: '8px', marginTop: '6px', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', backgroundColor: '#eee' }}>
+                  📥 Last ned
+                </button>
+                <button onClick={() => startSletting(a.id, a.bildeUrl)} style={{ marginTop: '6px', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer', backgroundColor: '#eee' }}>
+                  🗑️ Slett bilde
+                </button>
               </>
             )}
           </li>
