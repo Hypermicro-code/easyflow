@@ -15,7 +15,7 @@ function Anlegg() {
   };
 
   useEffect(() => {
-    fetchAnlegg();import React, { useEffect, useState } from 'react';
+    fetchAnlegg();
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebase';
