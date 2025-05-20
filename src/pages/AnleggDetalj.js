@@ -12,7 +12,7 @@ function AnleggDetalj() {
   const [toast, setToast] = useState('');
   const [visModal, setVisModal] = useState(false);
   const [sletteType, setSletteType] = useState(null);
-  const [bilde, setBilde] = useState(null);
+  const [bilder, setBilder] = useState([]);
   const [fullscreenBilde, setFullscreenBilde] = useState(null);
   const [bildeSomSkalSlettes, setBildeSomSkalSlettes] = useState(null);
   const navigate = useNavigate();
@@ -30,6 +30,7 @@ function AnleggDetalj() {
       setNavn(data.navn || '');
       setStatus(data.status || '');
       setAnleggsnummer(data.anleggsnummer || '');
+      setBilder(data.bilder || []);
     } else {
       setToast('Anlegg ikke funnet');
     }
@@ -54,20 +55,18 @@ function AnleggDetalj() {
     }
   };
 
-  const lastOppNyttBilde = async () => {
-    if (!bilde) return;
+  const lastOppBilder = async (files) => {
     try {
-      const bildeRef = ref(storage, `anlegg/${Date.now()}_${bilde.name}`);
-      const snapshot = await uploadBytes(bildeRef, bilde);
-      const url = await getDownloadURL(snapshot.ref);
-
-      const eksisterende = anlegg.bilder || [];
-      await updateDoc(doc(db, 'anlegg', id), {
-        bilder: [...eksisterende, url]
-      });
-
-      setToast('Bilde lastet opp');
-      setBilde(null);
+      const nyeUrls = [];
+      for (const file of files) {
+        const bildeRef = ref(storage, `anlegg/${Date.now()}_${file.name}`);
+        const snapshot = await uploadBytes(bildeRef, file);
+        const url = await getDownloadURL(snapshot.ref);
+        nyeUrls.push(url);
+      }
+      const oppdatertListe = [...(anlegg.bilder || []), ...nyeUrls];
+      await updateDoc(doc(db, 'anlegg', id), { bilder: oppdatertListe });
+      setToast(`${nyeUrls.length} bilde(r) lastet opp`);
       fetchAnlegg();
     } catch (error) {
       console.error('Feil ved opplasting:', error);
@@ -79,10 +78,8 @@ function AnleggDetalj() {
     try {
       const bildeRef = ref(storage, url);
       await deleteObject(bildeRef);
-
-      const gjenværende = (anlegg.bilder || []).filter(b => b !== url);
+      const gjenværende = bilder.filter(b => b !== url);
       await updateDoc(doc(db, 'anlegg', id), { bilder: gjenværende });
-
       setToast('Bilde slettet');
       fetchAnlegg();
     } catch (error) {
@@ -96,7 +93,7 @@ function AnleggDetalj() {
 
   const slettAnlegg = async () => {
     try {
-      for (const url of anlegg.bilder || []) {
+      for (const url of bilder) {
         const bildeRef = ref(storage, url);
         await deleteObject(bildeRef);
       }
@@ -153,16 +150,15 @@ function AnleggDetalj() {
           style={{ marginBottom: '10px', padding: '10px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white' }}
         >
           💾 Lagre endringer
-        </button>{' '}
-
-        <input type="file" accept="image/*" onChange={(e) => setBilde(e.target.files[0])} />
-        <button
-          onClick={lastOppNyttBilde}
-          style={{ marginTop: '10px', marginLeft: '10px', backgroundColor: '#2196F3', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-        >
-          ⬆️ Last opp bilde
         </button>
 
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          capture="environment"
+          onChange={(e) => lastOppBilder(e.target.files)}
+        />
         <p><strong>Opprettet:</strong> {new Date(anlegg.opprettet).toLocaleString()}</p>
 
         {!anlegg.arkivert && (
@@ -197,11 +193,11 @@ function AnleggDetalj() {
       </div>
 
       {/* HØYRE */}
-      <div style={{ flex: '0 0 300px' }}>
+      <div style={{ flex: '0 0 300px', maxHeight: '80vh', overflowY: 'auto', paddingRight: '10px' }}>
         <h3>Bilder</h3>
-        {anlegg.bilder && anlegg.bilder.length > 0 ? (
+        {bilder.length > 0 ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {anlegg.bilder.map((url, idx) => (
+            {bilder.map((url, idx) => (
               <div key={idx}>
                 <img
                   src={url}
