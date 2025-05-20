@@ -38,7 +38,7 @@ function NyMelding() {
       }
     }
 
-    const melding = { fra, tekst, bildeUrl, bildeBase64: base64 };
+    const melding = { fra, tekst, bildeUrl, bildeBase64: base64, opprettet: new Date().toISOString()};
 
     if (navigator.onLine) {
       try {
