@@ -1,79 +1,45 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase';
 
 function NyMelding() {
   const [fra, setFra] = useState('');
   const [tekst, setTekst] = useState('');
-  const [offlineCount, setOfflineCount] = useState(0);
-
-  const oppdaterOfflineTeller = () => {
-    const lagret = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
-    setOfflineCount(lagret.length);
-  };
-
-  const syncOfflineMeldinger = async () => {
-    const lagret = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
-    if (lagret.length > 0) {
-      for (let melding of lagret) {
-        try {
-          await addDoc(collection(db, 'meldinger'), melding);
-        } catch (error) {
-          console.error('Feil ved synk av melding: ', error);
-          return;
-        }
-      }
-      localStorage.removeItem('offlineMeldinger');
-      alert('Offline-meldinger ble synkronisert!');
-      oppdaterOfflineTeller();
-    }
-  };
-
-  useEffect(() => {
-    oppdaterOfflineTeller();
-
-    if (navigator.onLine) {
-      syncOfflineMeldinger();
-    }
-
-    window.addEventListener('online', syncOfflineMeldinger);
-
-    return () => {
-      window.removeEventListener('online', syncOfflineMeldinger);
-    };
-  }, []);
+  const [bilde, setBilde] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const melding = { fra, tekst };
 
-    if (navigator.onLine) {
+    let bildeUrl = '';
+    if (bilde) {
+      const bildeRef = ref(storage, `meldinger/${Date.now()}_${bilde.name}`);
       try {
-        await addDoc(collection(db, 'meldinger'), melding);
-        alert('Melding lagret!');
+        const snapshot = await uploadBytes(bildeRef, bilde);
+        bildeUrl = await getDownloadURL(snapshot.ref);
       } catch (error) {
-        console.error('Feil ved lagring av melding: ', error);
-        alert('Kunne ikke lagre melding.');
+        console.error('Feil ved bildeopplasting:', error);
+        alert('Kunne ikke laste opp bilde.');
+        return;
       }
-    } else {
-      const lagret = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
-      lagret.push(melding);
-      localStorage.setItem('offlineMeldinger', JSON.stringify(lagret));
-      alert('Ingen dekning. Melding lagret lokalt.');
-      oppdaterOfflineTeller();
     }
 
-    setFra('');
-    setTekst('');
+    const melding = { fra, tekst, bildeUrl };
+
+    try {
+      await addDoc(collection(db, 'meldinger'), melding);
+      alert('Melding lagret!');
+      setFra('');
+      setTekst('');
+      setBilde(null);
+    } catch (error) {
+      console.error('Feil ved lagring av melding: ', error);
+      alert('Kunne ikke lagre melding.');
+    }
   };
 
   return (
     <div style={{ padding: '20px' }}>
-      {offlineCount > 0 && (
-        <div style={{ backgroundColor: 'yellow', padding: '10px', marginBottom: '10px' }}>
-          🚨 {offlineCount} melding(er) venter på synkronisering!
-        </div>
-      )}
       <h1>Ny melding</h1>
       <form onSubmit={handleSubmit}>
         <div>
@@ -83,6 +49,10 @@ function NyMelding() {
         <div>
           <label>Meldingstekst:</label><br />
           <textarea value={tekst} onChange={(e) => setTekst(e.target.value)} required />
+        </div>
+        <div>
+          <label>Legg til bilde (valgfritt):</label><br />
+          <input type='file' accept='image/*' onChange={(e) => setBilde(e.target.files[0])} />
         </div>
         <button type='submit'>Send melding</button>
       </form>
