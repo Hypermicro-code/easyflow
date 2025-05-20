@@ -19,11 +19,14 @@ function Meldinger() {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Meldinger (fra Firebase)</h1>
-      <ul>
-        {meldinger.map(m => (
-          <li key={m.id}>{m.fra}: {m.tekst}</li>
-        ))}
-      </ul>
+<ul>
+  {meldinger.map(m => (
+    <li key={m.id}>
+      {m.fra}: {m.tekst}<br />
+      {m.bildeUrl && <img src={m.bildeUrl} alt="Melding bilde" style={{ maxWidth: '200px', marginTop: '5px' }} />}
+    </li>
+  ))}
+</ul>
     </div>
   );
 }
