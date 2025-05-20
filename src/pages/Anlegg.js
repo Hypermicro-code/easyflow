@@ -3,11 +3,14 @@ import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import Toast from '../components/Toast';
+import BekreftModal from '../components/BekreftModal';
 
 function Anlegg() {
   const [anlegg, setAnlegg] = useState([]);
   const [fullscreenBilde, setFullscreenBilde] = useState(null);
   const [toast, setToast] = useState('');
+  const [visModal, setVisModal] = useState(false);
+  const [valgForSletting, setValgForSletting] = useState(null); // { id, bildeUrl }
 
   const fetchAnlegg = async () => {
     const anleggCol = collection(db, 'anlegg');
@@ -20,14 +23,21 @@ function Anlegg() {
     fetchAnlegg();
   }, []);
 
-  const slettBilde = async (anleggId, bildeUrl) => {
-    if (!window.confirm('Er du sikker på at du vil slette bildet?')) return;
+  const startSletting = (id, bildeUrl) => {
+    setValgForSletting({ id, bildeUrl });
+    setVisModal(true);
+  };
+
+  const bekreftSletting = async () => {
+    if (!valgForSletting) return;
+    const { id, bildeUrl } = valgForSletting;
+    setVisModal(false);
 
     try {
       const bildeRef = ref(storage, bildeUrl);
       await deleteObject(bildeRef);
 
-      const anleggRef = doc(db, 'anlegg', anleggId);
+      const anleggRef = doc(db, 'anlegg', id);
       await updateDoc(anleggRef, { bildeUrl: '' });
 
       setToast('Bilde slettet');
@@ -36,6 +46,8 @@ function Anlegg() {
       console.error('Feil ved sletting:', error);
       alert('Kunne ikke slette bildet.');
     }
+
+    setValgForSletting(null);
   };
 
   const lastNedBilde = (bildeUrl) => {
@@ -74,7 +86,7 @@ function Anlegg() {
                   onClick={() => setFullscreenBilde(a.bildeUrl)}
                 /><br />
                 <button onClick={() => lastNedBilde(a.bildeUrl)}>📥 Last ned</button>{' '}
-                <button onClick={() => slettBilde(a.id, a.bildeUrl)}>🗑️ Slett bilde</button>
+                <button onClick={() => startSletting(a.id, a.bildeUrl)}>🗑️ Slett bilde</button>
               </>
             )}
           </li>
@@ -103,6 +115,12 @@ function Anlegg() {
       )}
 
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
+      <BekreftModal
+        vis={visModal}
+        melding="Er du sikker på at du vil slette bildet?"
+        onBekreft={bekreftSletting}
+        onAvbryt={() => setVisModal(false)}
+      />
     </div>
   );
 }
