@@ -6,6 +6,7 @@ import Meldinger from './pages/Meldinger';
 import NyMelding from './pages/NyMelding';
 import OfflineKo from './pages/OfflineKo';
 import NyttAnlegg from './pages/NyttAnlegg';
+import AnleggDetalj from './pages/AnleggDetalj';
 
 function App() {
     const [offlineCount, setOfflineCount] = useState(0);
@@ -99,6 +100,7 @@ function App() {
         <Route path="/meldinger" element={<Meldinger />} />
         <Route path="/ny-melding" element={<NyMelding />} />
         <Route path="/offline-ko" element={<OfflineKo />} />
+        <Route path="/anlegg/:id" element={<AnleggDetalj />} />
       </Routes>
     </Router>
   );
