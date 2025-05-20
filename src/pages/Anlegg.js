@@ -1,63 +1,64 @@
-import React, { useState } from 'react';
-import { collection, addDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../firebase';
+import React, { useEffect, useState } from 'react';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 
-function NyttAnlegg() {
-  const [navn, setNavn] = useState('');
-  const [status, setStatus] = useState('');
-  const [bilde, setBilde] = useState(null);
+function Anlegg() {
+  const [anlegg, setAnlegg] = useState([]);
+  const [fullscreenBilde, setFullscreenBilde] = useState(null);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    const fetchAnlegg = async () => {
+      const anleggCol = collection(db, 'anlegg');
+      const anleggSnapshot = await getDocs(anleggCol);
+      const anleggList = anleggSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setAnlegg(anleggList);
+    };
 
-    let bildeUrl = '';
-    if (bilde) {
-      const bildeRef = ref(storage, `anlegg/${Date.now()}_${bilde.name}`);
-      try {
-        const snapshot = await uploadBytes(bildeRef, bilde);
-        bildeUrl = await getDownloadURL(snapshot.ref);
-      } catch (error) {
-        console.error('Feil ved bildeopplasting:', error);
-        alert('Kunne ikke laste opp bilde.');
-        return;
-      }
-    }
-
-    const anlegg = { navn, status, bildeUrl };
-
-    try {
-      await addDoc(collection(db, 'anlegg'), anlegg);
-      alert('Anlegg lagret!');
-      setNavn('');
-      setStatus('');
-      setBilde(null);
-    } catch (error) {
-      console.error('Feil ved lagring av anlegg: ', error);
-      alert('Kunne ikke lagre anlegg.');
-    }
-  };
+    fetchAnlegg();
+  }, []);
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Nytt anlegg</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Anleggsnavn:</label><br />
-          <input type='text' value={navn} onChange={(e) => setNavn(e.target.value)} required />
+      <h1>Anleggsliste</h1>
+      <ul>
+        {anlegg.map(a => (
+          <li key={a.id} style={{ marginBottom: '20px' }}>
+            <strong>{a.navn}</strong> – Status: {a.status}<br />
+            {a.bildeUrl && (
+              <img
+                src={a.bildeUrl}
+                alt="Anleggsbilde"
+                style={{ maxWidth: '200px', marginTop: '10px', cursor: 'pointer' }}
+                onClick={() => setFullscreenBilde(a.bildeUrl)}
+              />
+            )}
+          </li>
+        ))}
+      </ul>
+
+      {/* Fullskjermvisning */}
+      {fullscreenBilde && (
+        <div
+          onClick={() => setFullscreenBilde(null)}
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999
+          }}
+        >
+          <img
+            src={fullscreenBilde}
+            alt="Fullskjerm"
+            style={{ maxWidth: '90%', maxHeight: '90%' }}
+          />
         </div>
-        <div>
-          <label>Status:</label><br />
-          <input type='text' value={status} onChange={(e) => setStatus(e.target.value)} required />
-        </div>
-        <div>
-          <label>Legg til bilde (valgfritt):</label><br />
-          <input type='file' accept='image/*' onChange={(e) => setBilde(e.target.files[0])} />
-        </div>
-        <button type='submit'>Lag Anlegg</button>
-      </form>
+      )}
     </div>
   );
 }
 
-export default NyttAnlegg;
+export default Anlegg;
