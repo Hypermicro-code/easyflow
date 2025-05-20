@@ -11,14 +11,22 @@ function AnleggDetalj() {
   const [anlegg, setAnlegg] = useState(null);
   const [toast, setToast] = useState('');
   const [visModal, setVisModal] = useState(false);
-  const [sletteType, setSletteType] = useState(null); // "bilde" eller "anlegg"
+  const [sletteType, setSletteType] = useState(null);
   const navigate = useNavigate();
+
+  const [navn, setNavn] = useState('');
+  const [status, setStatus] = useState('');
+  const [anleggsnummer, setAnleggsnummer] = useState('');
 
   const fetchAnlegg = async () => {
     const docRef = doc(db, 'anlegg', id);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-      setAnlegg({ id: docSnap.id, ...docSnap.data() });
+      const data = docSnap.data();
+      setAnlegg({ id: docSnap.id, ...data });
+      setNavn(data.navn || '');
+      setStatus(data.status || '');
+      setAnleggsnummer(data.anleggsnummer || '');
     } else {
       setToast('Anlegg ikke funnet');
     }
@@ -27,6 +35,21 @@ function AnleggDetalj() {
   useEffect(() => {
     fetchAnlegg();
   }, [id]);
+
+  const oppdaterAnlegg = async () => {
+    try {
+      await updateDoc(doc(db, 'anlegg', id), {
+        navn,
+        status,
+        anleggsnummer: parseInt(anleggsnummer)
+      });
+      setToast('Anlegg oppdatert');
+      fetchAnlegg();
+    } catch (error) {
+      console.error('Feil ved oppdatering:', error);
+      setToast('Feil ved oppdatering');
+    }
+  };
 
   const slettBilde = async () => {
     try {
@@ -80,9 +103,35 @@ function AnleggDetalj() {
   return (
     <div style={{ padding: '20px' }}>
       <h1>Anleggsdetaljer</h1>
-      <p><strong>Anleggsnummer:</strong> {anlegg.anleggsnummer}</p>
-      <p><strong>Navn:</strong> {anlegg.navn}</p>
-      <p><strong>Status:</strong> {statusEmoji(anlegg.status)} {anlegg.status}</p>
+
+      <label>Anleggsnummer:</label><br />
+      <input
+        type="number"
+        value={anleggsnummer}
+        onChange={(e) => setAnleggsnummer(e.target.value)}
+      /><br /><br />
+
+      <label>Navn:</label><br />
+      <input
+        type="text"
+        value={navn}
+        onChange={(e) => setNavn(e.target.value)}
+      /><br /><br />
+
+      <label>Status:</label><br />
+      <input
+        type="text"
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+      /><br /><br />
+
+      <button
+        onClick={oppdaterAnlegg}
+        style={{ marginBottom: '20px', padding: '10px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white' }}
+      >
+        💾 Lagre endringer
+      </button>
+
       <p><strong>Opprettet:</strong> {new Date(anlegg.opprettet).toLocaleString()}</p>
 
       {anlegg.bildeUrl ? (
