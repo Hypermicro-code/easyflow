@@ -38,7 +38,7 @@ function NyttAnlegg() {
       }
     }
 
-    const anlegg = { navn, status, bildeUrl, bildeBase64: base64 };
+   const anlegg = {navn,status,bildeUrl,bildeBase64: base64,opprettet: new Date().toISOString()};
 
     if (navigator.onLine) {
       try {
