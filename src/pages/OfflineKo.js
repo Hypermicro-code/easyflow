@@ -14,7 +14,20 @@ function OfflineKo() {
     setMeldinger(lagretMeldinger);
     setAnlegg(lagretAnlegg);
   };
+const slettMeldingFraKø = (index) => {
+  const oppdatert = [...meldinger];
+  oppdatert.splice(index, 1);
+  localStorage.setItem('offlineMeldinger', JSON.stringify(oppdatert));
+  setMeldinger(oppdatert);
+};
 
+const slettAnleggFraKø = (index) => {
+  const oppdatert = [...anlegg];
+  oppdatert.splice(index, 1);
+  localStorage.setItem('offlineAnlegg', JSON.stringify(oppdatert));
+  setAnlegg(oppdatert);
+};
+  
   const dataURLtoBlob = (dataurl) => {
     const arr = dataurl.split(',');
     const mime = arr[0].match(/:(.*?);/)[1];
@@ -107,6 +120,7 @@ function OfflineKo() {
                       onClick={() => setFullscreenBilde(m.bildeUrl || m.bildeBase64)}
                     /><br />
                     <button onClick={() => lastNedBase64(m.bildeUrl || m.bildeBase64, 'melding_offline.jpg')}>📥 Last ned</button>
+                    <button onClick={() => slettMeldingFraKø(index)}>🗑️ Slett fra kø</button>
                   </>
                 )}
               </li>
@@ -136,6 +150,7 @@ function OfflineKo() {
                       onClick={() => setFullscreenBilde(a.bildeUrl || a.bildeBase64)}
                     /><br />
                     <button onClick={() => lastNedBase64(a.bildeUrl || a.bildeBase64, 'anlegg_offline.jpg')}>📥 Last ned</button>
+                    <button onClick={() => slettAnleggFraKø(index)}>🗑️ Slett fra kø</button>
                   </>
                 )}
               </li>
