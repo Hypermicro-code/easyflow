@@ -13,6 +13,8 @@ function AnleggDetalj() {
   const [visModal, setVisModal] = useState(false);
   const [sletteType, setSletteType] = useState(null);
   const [bilde, setBilde] = useState(null);
+  const [fullscreenBilde, setFullscreenBilde] = useState(null);
+  const [bildeSomSkalSlettes, setBildeSomSkalSlettes] = useState(null);
   const navigate = useNavigate();
 
   const [navn, setNavn] = useState('');
@@ -52,25 +54,50 @@ function AnleggDetalj() {
     }
   };
 
-  const slettBilde = async () => {
+  const lastOppNyttBilde = async () => {
+    if (!bilde) return;
     try {
-      const bildeRef = ref(storage, anlegg.bildeUrl);
+      const bildeRef = ref(storage, `anlegg/${Date.now()}_${bilde.name}`);
+      const snapshot = await uploadBytes(bildeRef, bilde);
+      const url = await getDownloadURL(snapshot.ref);
+
+      const eksisterende = anlegg.bilder || [];
+      await updateDoc(doc(db, 'anlegg', id), {
+        bilder: [...eksisterende, url]
+      });
+
+      setToast('Bilde lastet opp');
+      setBilde(null);
+      fetchAnlegg();
+    } catch (error) {
+      console.error('Feil ved opplasting:', error);
+      setToast('Feil ved bildeopplasting');
+    }
+  };
+
+  const slettBilde = async (url) => {
+    try {
+      const bildeRef = ref(storage, url);
       await deleteObject(bildeRef);
-      await updateDoc(doc(db, 'anlegg', id), { bildeUrl: '' });
+
+      const gjenværende = (anlegg.bilder || []).filter(b => b !== url);
+      await updateDoc(doc(db, 'anlegg', id), { bilder: gjenværende });
+
       setToast('Bilde slettet');
       fetchAnlegg();
     } catch (error) {
-      console.error('Feil ved sletting av bilde:', error);
+      console.error('Feil ved sletting:', error);
       setToast('Feil ved sletting av bilde');
     }
+
+    setBildeSomSkalSlettes(null);
     setVisModal(false);
-    setSletteType(null);
   };
 
   const slettAnlegg = async () => {
     try {
-      if (anlegg.bildeUrl) {
-        const bildeRef = ref(storage, anlegg.bildeUrl);
+      for (const url of anlegg.bilder || []) {
+        const bildeRef = ref(storage, url);
         await deleteObject(bildeRef);
       }
       await deleteDoc(doc(db, 'anlegg', id));
@@ -82,29 +109,6 @@ function AnleggDetalj() {
     }
     setVisModal(false);
     setSletteType(null);
-  };
-
-  const lastNedBilde = () => {
-    const link = document.createElement('a');
-    link.href = anlegg.bildeUrl;
-    link.download = 'anleggsbilde.jpg';
-    link.click();
-  };
-
-  const lastOppNyttBilde = async () => {
-    if (!bilde) return;
-    try {
-      const bildeRef = ref(storage, `anlegg/${Date.now()}_${bilde.name}`);
-      const snapshot = await uploadBytes(bildeRef, bilde);
-      const url = await getDownloadURL(snapshot.ref);
-      await updateDoc(doc(db, 'anlegg', id), { bildeUrl: url });
-      setToast('Nytt bilde lastet opp');
-      setBilde(null);
-      fetchAnlegg();
-    } catch (error) {
-      console.error('Feil ved opplasting:', error);
-      setToast('Feil ved bildeopplasting');
-    }
   };
 
   const statusEmoji = (status) => {
@@ -119,7 +123,7 @@ function AnleggDetalj() {
 
   return (
     <div style={{ display: 'flex', padding: '20px', gap: '30px' }}>
-      {/* VENSTRE – Info og kontroller */}
+      {/* VENSTRE */}
       <div style={{ flex: 1 }}>
         <h1>Anleggsdetaljer</h1>
 
@@ -146,9 +150,17 @@ function AnleggDetalj() {
 
         <button
           onClick={oppdaterAnlegg}
-          style={{ marginBottom: '20px', padding: '10px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white' }}
+          style={{ marginBottom: '10px', padding: '10px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white' }}
         >
           💾 Lagre endringer
+        </button>{' '}
+
+        <input type="file" accept="image/*" onChange={(e) => setBilde(e.target.files[0])} />
+        <button
+          onClick={lastOppNyttBilde}
+          style={{ marginTop: '10px', marginLeft: '10px', backgroundColor: '#2196F3', color: 'white', padding: '8px 16px', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+        >
+          ⬆️ Last opp bilde
         </button>
 
         <p><strong>Opprettet:</strong> {new Date(anlegg.opprettet).toLocaleString()}</p>
@@ -161,7 +173,7 @@ function AnleggDetalj() {
               navigate('/anlegg');
             }}
             style={{
-              marginTop: '10px',
+              marginTop: '20px',
               backgroundColor: '#999',
               color: 'white',
               padding: '10px 20px',
@@ -184,50 +196,79 @@ function AnleggDetalj() {
         </button>
       </div>
 
-      {/* HØYRE – Bilde */}
+      {/* HØYRE */}
       <div style={{ flex: '0 0 300px' }}>
-        <h3>Bilde</h3>
-
-        {anlegg.bildeUrl ? (
-          <>
-            <img
-              src={anlegg.bildeUrl}
-              alt="Bilde"
-              style={{ maxWidth: '100%', marginBottom: '10px' }}
-            /><br />
-            <button onClick={lastNedBilde} style={{ marginRight: '8px' }}>📥 Last ned</button>
-            <button onClick={() => { setVisModal(true); setSletteType('bilde'); }}>🗑️ Slett bilde</button>
-          </>
+        <h3>Bilder</h3>
+        {anlegg.bilder && anlegg.bilder.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {anlegg.bilder.map((url, idx) => (
+              <div key={idx}>
+                <img
+                  src={url}
+                  alt={`Bilde ${idx + 1}`}
+                  style={{ width: '100%', cursor: 'pointer', borderRadius: '6px' }}
+                  onClick={() => setFullscreenBilde(url)}
+                />
+                <button
+                  onClick={() => {
+                    setBildeSomSkalSlettes(url);
+                    setVisModal(true);
+                  }}
+                  style={{
+                    marginTop: '5px',
+                    backgroundColor: '#eee',
+                    padding: '6px 12px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🗑️ Slett
+                </button>
+              </div>
+            ))}
+          </div>
         ) : (
-          <p style={{ fontStyle: 'italic', color: '#666' }}>Ingen bilde lastet opp</p>
+          <p style={{ fontStyle: 'italic', color: '#666' }}>Ingen bilder</p>
         )}
+      </div>
 
-        <hr style={{ margin: '20px 0' }} />
-
-        <label>Last opp nytt bilde:</label><br />
-        <input type="file" accept="image/*" onChange={(e) => setBilde(e.target.files[0])} /><br />
-        <button
-          onClick={lastOppNyttBilde}
+      {fullscreenBilde && (
+        <div
+          onClick={() => setFullscreenBilde(null)}
           style={{
-            marginTop: '10px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            padding: '8px 16px',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer'
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 999
           }}
         >
-          ⬆️ Last opp
-        </button>
-      </div>
+          <img
+            src={fullscreenBilde}
+            alt="Fullskjerm"
+            style={{ maxWidth: '90%', maxHeight: '90%' }}
+          />
+        </div>
+      )}
 
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
       <BekreftModal
         vis={visModal}
-        melding={sletteType === 'bilde' ? 'Slette bilde fra anlegget?' : 'Slette hele anlegget?'}
-        onBekreft={sletteType === 'bilde' ? slettBilde : slettAnlegg}
-        onAvbryt={() => setVisModal(false)}
+        melding={bildeSomSkalSlettes ? 'Slette dette bildet?' : 'Slette hele anlegget?'}
+        onBekreft={() => {
+          if (bildeSomSkalSlettes) {
+            slettBilde(bildeSomSkalSlettes);
+          } else {
+            slettAnlegg();
+          }
+        }}
+        onAvbryt={() => {
+          setVisModal(false);
+          setBildeSomSkalSlettes(null);
+        }}
       />
     </div>
   );
