@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { ref, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebase';
+import Toast from '../components/Toast';
 
 function Meldinger() {
   const [meldinger, setMeldinger] = useState([]);
   const [fullscreenBilde, setFullscreenBilde] = useState(null);
+  const [toast, setToast] = useState('');
 
   const fetchMeldinger = async () => {
     const meldingCol = collection(db, 'meldinger');
@@ -25,7 +27,7 @@ function Meldinger() {
       await deleteObject(bildeRef);
       const meldingRef = doc(db, 'meldinger', meldingId);
       await updateDoc(meldingRef, { bildeUrl: '' });
-      alert('Bilde slettet.');
+      setToast('Bilde slettet');
       fetchMeldinger();
     } catch (error) {
       console.error('Feil ved sletting:', error);
@@ -88,6 +90,8 @@ function Meldinger() {
           />
         </div>
       )}
+
+      {toast && <Toast message={toast} onClose={() => setToast('')} />}
     </div>
   );
 }
