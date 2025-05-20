@@ -20,14 +20,11 @@ function Anlegg() {
 
   const slettBilde = async (anleggId, bildeUrl) => {
     if (!window.confirm('Er du sikker på at du vil slette bildet?')) return;
-
     try {
       const bildeRef = ref(storage, bildeUrl);
       await deleteObject(bildeRef);
-
       const anleggRef = doc(db, 'anlegg', anleggId);
       await updateDoc(anleggRef, { bildeUrl: '' });
-
       alert('Bilde slettet.');
       fetchAnlegg();
     } catch (error) {
@@ -58,6 +55,11 @@ function Anlegg() {
         {anlegg.map(a => (
           <li key={a.id} style={{ marginBottom: '30px' }}>
             <strong>{a.navn}</strong> – {statusEmoji(a.status)} {a.status}<br />
+            {a.opprettet && (
+              <div style={{ fontSize: '0.85em', color: '#666' }}>
+                Opprettet: {new Date(a.opprettet).toLocaleString()}
+              </div>
+            )}
             {a.bildeUrl && (
               <>
                 <img
@@ -74,7 +76,6 @@ function Anlegg() {
         ))}
       </ul>
 
-      {/* Fullskjermvisning */}
       {fullscreenBilde && (
         <div
           onClick={() => setFullscreenBilde(null)}
