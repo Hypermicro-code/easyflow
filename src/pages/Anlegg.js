@@ -12,7 +12,9 @@ function Anlegg() {
   const fetchAnlegg = async () => {
     const anleggCol = collection(db, 'anlegg');
     const anleggSnapshot = await getDocs(anleggCol);
-    const anleggList = anleggSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+   const anleggList = anleggSnapshot.docs
+  .map(doc => ({ id: doc.id, ...doc.data() }))
+  .filter(a => !a.arkivert);
 
     // Sorter etter anleggsnummer (synkende)
     anleggList.sort((a, b) => (b.anleggsnummer || 0) - (a.anleggsnummer || 0));
