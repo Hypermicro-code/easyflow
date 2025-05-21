@@ -56,6 +56,7 @@ export default {
     informasjon: 'Informasjon',
     opprettUnderanlegg: 'Opprett under-anlegg',
     underanlegg: 'Underanlegg',
+    angiNavnUnderanlegg: 'Skriv inn navn for underanlegget:'
   },
   nyMelding: {
     tittel: 'Ny melding',
