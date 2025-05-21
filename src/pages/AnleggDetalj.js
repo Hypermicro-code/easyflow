@@ -60,28 +60,33 @@ function AnleggDetalj() {
     }
   };
 
-  const opprettUnderanlegg = async () => {
-    const hovednummer = anlegg.anleggsnummer;
-    const snapshot = await getDocs(collection(db, 'anlegg'));
-    const eksisterende = snapshot.docs
-      .map(doc => doc.data().anleggsnummer)
-      .filter(nr => typeof nr === 'string' && nr.startsWith(`${hovednummer}-`));
-    const nesteSuffiks = eksisterende.length + 1;
-    const nyttNummer = `${hovednummer}-${nesteSuffiks}`;
+const opprettUnderanlegg = async () => {
+  const navn = prompt(t('anleggDetalj.angiNavnUnderanlegg'));
+  if (!navn) return;
 
-    const nytt = {
-      navn: `${anlegg.navn} - ${t('anleggDetalj.underanlegg')}`,
-      status: t('status.nytt'),
-      anleggsnummer: nyttNummer,
-      informasjon: '',
-      bilder: [],
-      opprettet: new Date().toISOString(),
-      arkivert: false
-    };
+  const hovednummer = anlegg.anleggsnummer;
+  const snapshot = await getDocs(collection(db, 'anlegg'));
+  const eksisterende = snapshot.docs
+    .map(doc => doc.data().anleggsnummer)
+    .filter(nr => typeof nr === 'string' && nr.startsWith(`${hovednummer}-`));
 
-    const docRef = await addDoc(collection(db, 'anlegg'), nytt);
-    navigate(`/anlegg/${docRef.id}`);
+  const nesteSuffiks = eksisterende.length + 1;
+  const nyttNummer = `${hovednummer}-${nesteSuffiks}`;
+
+  const nytt = {
+    navn,
+    status: t('status.nytt'),
+    anleggsnummer: nyttNummer,
+    informasjon: '',
+    bilder: [],
+    opprettet: new Date().toISOString(),
+    arkivert: false
   };
+
+  const docRef = await addDoc(collection(db, 'anlegg'), nytt);
+  navigate(`/anlegg/${docRef.id}`);
+};
+
 
   const statusEmoji = (status, erArkivert) => {
     if (erArkivert) return '📦';
