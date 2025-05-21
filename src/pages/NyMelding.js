@@ -1,71 +1,57 @@
-import React, { useState } from 'react';
-import { collection, addDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { db, storage } from '../firebase';
+import React, { useEffect, useState } from 'react';
+import { collection, addDoc, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 import Toast from '../components/Toast';
 
 function NyMelding() {
-  const [fra, setFra] = useState('');
   const [tekst, setTekst] = useState('');
-  const [bilde, setBilde] = useState(null);
+  const [anleggsnummer, setAnleggsnummer] = useState('');
+  const [alleAnlegg, setAlleAnlegg] = useState([]);
   const [toast, setToast] = useState('');
 
-  const toBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-    });
+  useEffect(() => {
+    const hentAnlegg = async () => {
+      try {
+        const snapshot = await getDocs(collection(db, 'anlegg'));
+        const liste = snapshot.docs
+          .map(doc => doc.data().anleggsnummer)
+          .filter(nr => !!nr)
+          .sort((a, b) => b - a);
+        setAlleAnlegg(liste);
+        if (liste.length > 0) setAnleggsnummer(liste[0]);
+      } catch (error) {
+        console.error('Kunne ikke hente anlegg:', error);
+      }
+    };
+
+    hentAnlegg();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    let bildeUrl = '';
-    let base64 = '';
-
-    if (bilde) {
-      if (navigator.onLine) {
-        const bildeRef = ref(storage, `meldinger/${Date.now()}_${bilde.name}`);
-        try {
-          const snapshot = await uploadBytes(bildeRef, bilde);
-          bildeUrl = await getDownloadURL(snapshot.ref);
-        } catch (error) {
-          console.error('Feil ved bildeopplasting:', error);
-          setToast('Feil: kunne ikke laste opp bilde.');
-          return;
-        }
-      } else {
-        base64 = await toBase64(bilde);
-      }
-    }
-
     const melding = {
-      fra,
       tekst,
-      bildeUrl,
-      bildeBase64: base64,
+      anleggsnummer: parseInt(anleggsnummer),
       opprettet: new Date().toISOString()
     };
 
     if (navigator.onLine) {
       try {
         await addDoc(collection(db, 'meldinger'), melding);
-        setToast('Melding lagret');
+        setToast('Melding sendt');
       } catch (error) {
-        console.error('Feil ved lagring av melding: ', error);
-        setToast('Feil: kunne ikke lagre melding.');
+        console.error('Feil ved sending:', error);
+        setToast('Feil ved sending av melding');
       }
     } else {
-      const lagret = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
-      lagret.push(melding);
-      localStorage.setItem('offlineMeldinger', JSON.stringify(lagret));
+      const offline = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
+      offline.push(melding);
+      localStorage.setItem('offlineMeldinger', JSON.stringify(offline));
       setToast('Ingen dekning – melding lagret lokalt');
     }
 
-    setFra('');
     setTekst('');
-    setBilde(null);
   };
 
   return (
@@ -73,18 +59,24 @@ function NyMelding() {
       <h1>Ny melding</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Fra:</label><br />
-          <input type='text' value={fra} onChange={(e) => setFra(e.target.value)} required />
+          <label>Anleggsnummer:</label><br />
+          <select value={anleggsnummer} onChange={(e) => setAnleggsnummer(e.target.value)} required>
+            {alleAnlegg.map((nr, i) => (
+              <option key={i} value={nr}>{nr}</option>
+            ))}
+          </select>
         </div>
         <div>
-          <label>Meldingstekst:</label><br />
-          <textarea value={tekst} onChange={(e) => setTekst(e.target.value)} required />
+          <label>Melding:</label><br />
+          <textarea
+            value={tekst}
+            onChange={(e) => setTekst(e.target.value)}
+            rows={5}
+            cols={40}
+            required
+          />
         </div>
-        <div>
-          <label>Legg til bilde (valgfritt):</label><br />
-          <input type='file' accept='image/*' onChange={(e) => setBilde(e.target.files[0])} />
-        </div>
-        <button type='submit'>Send melding</button>
+        <button type="submit">Send melding</button>
       </form>
 
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
