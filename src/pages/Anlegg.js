@@ -1,28 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
-import Toast from '../components/Toast';
-import { useNavigate } from 'react-router-dom';
-
-function Anlegg() {
-  const [anlegg, setAnlegg] = useState([]);
-  const [toast, setToast] = useState('');
-  const navigate = useNavigate();
-
-  const fetchAnlegg = async () => {
-    const anleggCol = collection(db, 'anlegg');
-    const anleggSnapshot = await getDocs(anleggCol);
-   const anleggList = anleggSnapshot.docs
-  .map(doc => ({ id: doc.id, ...doc.data() }))
-  .filter(a => !a.arkivert);
-
-    // Sorter etter anleggsnummer (synkende)
-    anleggList.sort((a, b) => (b.anleggsnummer || 0) - (a.anleggsnummer || 0));
-    setAnlegg(anleggList);
-  };
-import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../firebase';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
