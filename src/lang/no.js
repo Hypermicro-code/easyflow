@@ -56,8 +56,14 @@ export default {
     informasjon: 'Informasjon',
     opprettUnderanlegg: 'Opprett under-anlegg',
     underanlegg: 'Underanlegg',
-    angiNavnUnderanlegg: 'Skriv inn navn for underanlegget:'
-  },
+    angiNavnUnderanlegg: 'Skriv inn navn for underanlegget:',
+      opprettUnderanlegg: 'Opprett under-anlegg',
+  angiNavnUnderanlegg: 'Skriv inn navn for under-anlegget:'
+},
+knapp: {
+  avbryt: 'Avbryt',
+  opprett: 'Opprett'
+}
   nyMelding: {
     tittel: 'Ny melding',
     anleggsnummer: 'Anleggsnummer',
