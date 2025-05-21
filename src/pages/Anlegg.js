@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 function Anlegg() {
   const { t } = useTranslation();
   const [anlegg, setAnlegg] = useState([]);
+  const [visArkiverte, setVisArkiverte] = useState(false);
 
   useEffect(() => {
     const hentAnlegg = async () => {
@@ -14,7 +15,6 @@ function Anlegg() {
         const snapshot = await getDocs(collection(db, 'anlegg'));
         const liste = snapshot.docs
           .map(doc => ({ id: doc.id, ...doc.data() }))
-          .filter(a => !a.arkivert)
           .sort((a, b) => b.anleggsnummer - a.anleggsnummer);
         setAnlegg(liste);
       } catch (error) {
@@ -24,6 +24,8 @@ function Anlegg() {
 
     hentAnlegg();
   }, []);
+
+  const filtrert = anlegg.filter(a => a.arkivert === visArkiverte);
 
   const statusEmoji = (status) => {
     const s = status?.toLowerCase();
@@ -37,7 +39,13 @@ function Anlegg() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>{t('anlegg.tittel')}</h1>
+      <h1>
+        {visArkiverte ? t('anlegg.arkiverteTittel') : t('anlegg.tittel')}
+      </h1>
+
+      <button onClick={() => setVisArkiverte(!visArkiverte)} style={{ marginBottom: '16px' }}>
+        {visArkiverte ? t('anlegg.visAktive') : t('anlegg.visArkiverte')}
+      </button>
 
       <div style={{
         display: 'grid',
@@ -57,11 +65,11 @@ function Anlegg() {
         <div>{t('anlegg.status')}</div>
       </div>
 
-      {anlegg.length === 0 ? (
-        <p>{t('anlegg.ingen')}</p>
+      {filtrert.length === 0 ? (
+        <p>{visArkiverte ? t('anlegg.ingenArkiverte') : t('anlegg.ingen')}</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
-          {anlegg.map((a) => (
+          {filtrert.map((a) => (
             <li key={a.id} style={{ marginBottom: '8px' }}>
               <Link
                 to={`/anlegg/${a.id}`}
