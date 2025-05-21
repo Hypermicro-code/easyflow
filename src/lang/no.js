@@ -63,7 +63,7 @@ export default {
 knapp: {
   avbryt: 'Avbryt',
   opprett: 'Opprett'
-}
+},
   nyMelding: {
     tittel: 'Ny melding',
     anleggsnummer: 'Anleggsnummer',
