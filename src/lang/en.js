@@ -23,6 +23,9 @@ export default {
   anlegg: {
     tittel: 'Site overview',
     ingen: 'No sites available',
+    anleggsnummer: 'Site number',
+    opprettet: 'Created',
+    navn: 'Name',
   },
   anleggDetalj: {
     tittel: 'Site details',
