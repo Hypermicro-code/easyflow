@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { collection, addDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import Toast from '../components/Toast';
+import { useTranslation } from 'react-i18next';
 
 function NyttAnlegg() {
+  const { t } = useTranslation();
   const [navn, setNavn] = useState('');
   const [status, setStatus] = useState('Nytt anlegg');
   const [anleggsnummer, setAnleggsnummer] = useState('');
@@ -22,16 +24,16 @@ function NyttAnlegg() {
     if (navigator.onLine) {
       try {
         await addDoc(collection(db, 'anlegg'), anlegg);
-        setToast('Anlegg lagret');
+        setToast(t('nyttAnlegg.lagret'));
       } catch (error) {
         console.error('Feil ved lagring av anlegg: ', error);
-        setToast('Feil: kunne ikke lagre anlegg.');
+        setToast(t('feil.lagring'));
       }
     } else {
       const lagret = JSON.parse(localStorage.getItem('offlineAnlegg')) || [];
       lagret.push(anlegg);
       localStorage.setItem('offlineAnlegg', JSON.stringify(lagret));
-      setToast('Ingen dekning – anlegg lagret lokalt');
+      setToast(t('feil.offlineLagret'));
     }
 
     setNavn('');
@@ -41,10 +43,10 @@ function NyttAnlegg() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Nytt anlegg</h1>
+      <h1>{t('nyttAnlegg.tittel')}</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Anleggsnavn:</label><br />
+          <label>{t('nyttAnlegg.navn')}:</label><br />
           <input
             type='text'
             value={navn}
@@ -53,17 +55,17 @@ function NyttAnlegg() {
           />
         </div>
         <div>
-          <label>Status:</label><br />
+          <label>{t('nyttAnlegg.status')}:</label><br />
           <select value={status} onChange={(e) => setStatus(e.target.value)} required>
-            <option>Nytt anlegg</option>
-            <option>Under arbeid</option>
-            <option>Til kontroll</option>
-            <option>Ferdig</option>
-            <option>Til utbedring</option>
+            <option>{t('status.nytt')}</option>
+            <option>{t('status.underArbeid')}</option>
+            <option>{t('status.tilKontroll')}</option>
+            <option>{t('status.ferdig')}</option>
+            <option>{t('status.tilUtbedring')}</option>
           </select>
         </div>
         <div>
-          <label>Anleggsnummer:</label><br />
+          <label>{t('nyttAnlegg.anleggsnummer')}:</label><br />
           <input
             type='number'
             value={anleggsnummer}
@@ -71,7 +73,7 @@ function NyttAnlegg() {
             required
           />
         </div>
-        <button type='submit'>Lag Anlegg</button>
+        <button type='submit'>{t('nyttAnlegg.knapp')}</button>
       </form>
 
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
