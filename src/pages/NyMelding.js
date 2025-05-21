@@ -44,13 +44,13 @@ function NyMelding() {
         setToast(t('nyMelding.sendt'));
       } catch (error) {
         console.error('Feil ved sending:', error);
-        setToast('Feil ved sending av melding');
+        setToast(t('feil.sending'));
       }
     } else {
       const offline = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
       offline.push(melding);
       localStorage.setItem('offlineMeldinger', JSON.stringify(offline));
-      setToast(t('nyMelding.lokal'));
+      setToast(t('nyMelding.lokaltLagret'));
     }
 
     setTekst('');
@@ -78,7 +78,7 @@ function NyMelding() {
             required
           />
         </div>
-        <button type="submit">{t('nyMelding.send')}</button>
+        <button type="submit">{t('nyMelding.knapp')}</button>
       </form>
 
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
