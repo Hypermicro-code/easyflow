@@ -9,6 +9,7 @@ import {
 } from 'firebase/storage';
 import Toast from '../components/Toast';
 import BekreftModal from '../components/BekreftModal';
+import UnderAnleggListe from '../components/UnderAnleggListe';
 import { useTranslation } from 'react-i18next';
 
 function AnleggDetalj() {
@@ -42,6 +43,9 @@ function AnleggDetalj() {
     };
     fetchAnlegg();
   }, [id, t]);
+
+  const erArkivert = anlegg?.arkivert;
+
   const oppdaterAnlegg = async () => {
     try {
       await updateDoc(doc(db, 'anlegg', id), {
@@ -61,7 +65,6 @@ function AnleggDetalj() {
     const eksisterende = snapshot.docs
       .map(doc => doc.data().anleggsnummer)
       .filter(nr => typeof nr === 'string' && nr.startsWith(`${hovednummer}-`));
-
     const nesteSuffiks = eksisterende.length + 1;
     const nyttNummer = `${hovednummer}-${nesteSuffiks}`;
 
@@ -79,8 +82,6 @@ function AnleggDetalj() {
     navigate(`/anlegg/${docRef.id}`);
   };
 
-  const erArkivert = anlegg?.arkivert;
-
   const statusEmoji = (status, erArkivert) => {
     if (erArkivert) return '📦';
     const s = status?.toLowerCase();
@@ -97,16 +98,16 @@ function AnleggDetalj() {
   return (
     <div style={{ display: 'flex', padding: '20px', gap: '30px' }}>
       <div style={{ flex: 1 }}>
-        <h1>
-          {t('anleggDetalj.tittel')} {statusEmoji(status, erArkivert)}
-        </h1>
+        <h1>{t('anleggDetalj.tittel')} {statusEmoji(status, erArkivert)}</h1>
 
         <div><strong>{t('anleggDetalj.anleggsnummer')}:</strong> {anlegg.anleggsnummer}</div>
         <div><strong>{t('anleggDetalj.navn')}:</strong> {anlegg.navn}</div>
         <div><strong>{t('anleggDetalj.opprettet')}:</strong> {new Date(anlegg.opprettet).toLocaleString()}</div>
+
         {!anlegg.anleggsnummer.toString().includes('-') && (
-        <UnderAnleggListe hovednummer={anlegg.anleggsnummer} gjeldendeId={anlegg.id} />
+          <UnderAnleggListe hovednummer={anlegg.anleggsnummer} gjeldendeId={anlegg.id} />
         )}
+
         <br />
         <label>{t('anleggDetalj.status')}:</label><br />
         <select value={status} onChange={(e) => setStatus(e.target.value)} disabled={erArkivert}>
@@ -132,10 +133,6 @@ function AnleggDetalj() {
             <button onClick={opprettUnderanlegg} style={{ marginLeft: '10px' }}>
               ➕ {t('anleggDetalj.opprettUnderanlegg')}
             </button>
-          </>
-        )}
-        {!erArkivert && (
-          <>
             <br /><br />
             <button onClick={() => fileInputRef.current.click()}>
               📷 {t('anleggDetalj.lastOpp')}
@@ -149,7 +146,6 @@ function AnleggDetalj() {
               onChange={async (e) => {
                 const files = Array.from(e.target.files);
                 const nyeUrls = [];
-
                 for (const file of files) {
                   const refPath = `anlegg/${Date.now()}_${file.name}`;
                   const filRef = ref(storage, refPath);
@@ -157,18 +153,13 @@ function AnleggDetalj() {
                   const url = await getDownloadURL(filRef);
                   nyeUrls.push(url);
                 }
-
                 const nyeBilder = [...(bilder || []), ...nyeUrls];
                 await updateDoc(doc(db, 'anlegg', id), { bilder: nyeBilder });
                 setBilder(nyeBilder);
                 setToast(t('anleggDetalj.bildeLastetOpp'));
               }}
             />
-          </>
-        )}
-
-        {!erArkivert && (
-          <div style={{ marginTop: '20px' }}>
+            <br /><br />
             <button onClick={async () => {
               await updateDoc(doc(db, 'anlegg', id), { arkivert: true });
               setToast(t('anleggDetalj.arkivert'));
@@ -176,7 +167,7 @@ function AnleggDetalj() {
             }}>
               📦 {t('anleggDetalj.arkiver')}
             </button>
-          </div>
+          </>
         )}
 
         <div style={{ marginTop: '30px' }}>
@@ -189,7 +180,6 @@ function AnleggDetalj() {
         </div>
       </div>
 
-      {/* Galleri */}
       <div style={{ flex: 1, maxHeight: '80vh', overflowY: 'auto' }}>
         <h3>{t('anleggDetalj.bilder')}</h3>
         {bilder.length > 0 ? (
