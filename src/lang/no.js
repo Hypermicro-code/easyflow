@@ -26,6 +26,7 @@ export default {
     anleggsnummer: 'Anleggsnummer',
     opprettet: 'Opprettet',
     navn: 'Navn',
+    status: 'Status',
   },
   anleggDetalj: {
     tittel: 'Anleggsdetaljer',
