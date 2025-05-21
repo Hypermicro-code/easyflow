@@ -62,25 +62,26 @@ function Anlegg() {
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {anlegg.map((a) => (
-            <li
-              key={a.id}
-              style={{
-                marginBottom: '8px',
-                padding: '12px 16px',
-                backgroundColor: '#f9f9f9',
-                borderRadius: '10px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                display: 'grid',
-                gridTemplateColumns: '1fr 2fr 2fr 60px',
-                alignItems: 'center'
-              }}
-            >
-              <Link to={`/anlegg/${a.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                <div>{a.anleggsnummer}</div>
+            <li key={a.id} style={{ marginBottom: '8px' }}>
+              <Link
+                to={`/anlegg/${a.id}`}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 2fr 2fr 60px',
+                  alignItems: 'center',
+                  padding: '8px 16px',
+                  backgroundColor: '#f9f9f9',
+                  borderRadius: '10px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+                }}
+              >
+                <div style={{ fontWeight: 'bold' }}>{a.anleggsnummer}</div>
+                <div>{new Date(a.opprettet).toLocaleString()}</div>
+                <div style={{ fontWeight: 'bold' }}>{a.navn}</div>
+                <div style={{ fontSize: '1.5rem' }}>{statusEmoji(a.status)}</div>
               </Link>
-              <div>{new Date(a.opprettet).toLocaleString()}</div>
-              <div>{a.navn}</div>
-              <div style={{ fontSize: '1.5rem' }}>{statusEmoji(a.status)}</div>
             </li>
           ))}
         </ul>
