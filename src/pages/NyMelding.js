@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { collection, addDoc, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import Toast from '../components/Toast';
+import { useTranslation } from 'react-i18next';
 
 function NyMelding() {
+  const { t } = useTranslation();
   const [tekst, setTekst] = useState('');
   const [anleggsnummer, setAnleggsnummer] = useState('');
   const [alleAnlegg, setAlleAnlegg] = useState([]);
@@ -39,7 +41,7 @@ function NyMelding() {
     if (navigator.onLine) {
       try {
         await addDoc(collection(db, 'meldinger'), melding);
-        setToast('Melding sendt');
+        setToast(t('nyMelding.sendt'));
       } catch (error) {
         console.error('Feil ved sending:', error);
         setToast('Feil ved sending av melding');
@@ -48,7 +50,7 @@ function NyMelding() {
       const offline = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
       offline.push(melding);
       localStorage.setItem('offlineMeldinger', JSON.stringify(offline));
-      setToast('Ingen dekning – melding lagret lokalt');
+      setToast(t('nyMelding.lokal'));
     }
 
     setTekst('');
@@ -56,10 +58,10 @@ function NyMelding() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Ny melding</h1>
+      <h1>{t('nyMelding.tittel')}</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Anleggsnummer:</label><br />
+          <label>{t('nyMelding.anleggsnummer')}:</label><br />
           <select value={anleggsnummer} onChange={(e) => setAnleggsnummer(e.target.value)} required>
             {alleAnlegg.map((nr, i) => (
               <option key={i} value={nr}>{nr}</option>
@@ -67,7 +69,7 @@ function NyMelding() {
           </select>
         </div>
         <div>
-          <label>Melding:</label><br />
+          <label>{t('nyMelding.melding')}:</label><br />
           <textarea
             value={tekst}
             onChange={(e) => setTekst(e.target.value)}
@@ -76,7 +78,7 @@ function NyMelding() {
             required
           />
         </div>
-        <button type="submit">Send melding</button>
+        <button type="submit">{t('nyMelding.send')}</button>
       </form>
 
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
