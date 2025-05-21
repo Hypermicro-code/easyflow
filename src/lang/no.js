@@ -23,6 +23,9 @@ export default {
   anlegg: {
     tittel: 'Oversikt over anlegg',
     ingen: 'Ingen anlegg tilgjengelig',
+    anleggsnummer: 'Anleggsnummer',
+    opprettet: 'Opprettet',
+    navn: 'Navn',
   },
   anleggDetalj: {
     tittel: 'Anleggsdetaljer',
