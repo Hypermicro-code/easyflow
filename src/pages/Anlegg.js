@@ -38,6 +38,25 @@ function Anlegg() {
   return (
     <div style={{ padding: '20px' }}>
       <h1>{t('anlegg.tittel')}</h1>
+
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 2fr 2fr 60px',
+        gap: '10px',
+        fontWeight: 'bold',
+        position: 'sticky',
+        top: '0',
+        backgroundColor: '#ffffff',
+        padding: '10px 16px',
+        borderBottom: '2px solid #ccc',
+        zIndex: 10
+      }}>
+        <div>{t('anlegg.anleggsnummer')}</div>
+        <div>{t('anlegg.opprettet')}</div>
+        <div>{t('anlegg.navn')}</div>
+        <div>{t('anlegg.status')}</div>
+      </div>
+
       {anlegg.length === 0 ? (
         <p>{t('anlegg.ingen')}</p>
       ) : (
@@ -46,24 +65,22 @@ function Anlegg() {
             <li
               key={a.id}
               style={{
-                marginBottom: '15px',
+                marginBottom: '8px',
                 padding: '12px 16px',
                 backgroundColor: '#f9f9f9',
                 borderRadius: '10px',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                display: 'flex',
-                justifyContent: 'space-between',
+                display: 'grid',
+                gridTemplateColumns: '1fr 2fr 2fr 60px',
                 alignItems: 'center'
               }}
             >
-              <Link to={`/anlegg/${a.id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
-                <div><strong>{t('anlegg.anleggsnummer')}:</strong> {a.anleggsnummer}</div>
-                <div><strong>{t('anlegg.opprettet')}:</strong> {new Date(a.opprettet).toLocaleString()}</div>
-                <div><strong>{t('anlegg.navn')}:</strong> {a.navn}</div>
+              <Link to={`/anlegg/${a.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <div>{a.anleggsnummer}</div>
               </Link>
-              <div style={{ fontSize: '1.5rem', marginLeft: '10px' }}>
-                {statusEmoji(a.status)}
-              </div>
+              <div>{new Date(a.opprettet).toLocaleString()}</div>
+              <div>{a.navn}</div>
+              <div style={{ fontSize: '1.5rem' }}>{statusEmoji(a.status)}</div>
             </li>
           ))}
         </ul>
