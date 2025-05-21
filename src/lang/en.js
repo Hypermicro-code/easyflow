@@ -63,7 +63,7 @@ export default {
    knapp: {
   avbryt: 'Cancel',
   opprett: 'Create'
-} 
+},
   nyMelding: {
     tittel: 'New message',
     anleggsnummer: 'Site number',
