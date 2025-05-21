@@ -7,10 +7,10 @@ import {
 import {
   ref, uploadBytes, getDownloadURL, deleteObject
 } from 'firebase/storage';
-import UnderAnleggBobler from '../components/UnderAnleggBobler';
 import Toast from '../components/Toast';
 import BekreftModal from '../components/BekreftModal';
-import UnderAnleggListe from '../components/UnderAnleggListe';
+import UnderAnleggBobler from '../components/UnderAnleggBobler';
+import NavnModal from '../components/NavnModal';
 import { useTranslation } from 'react-i18next';
 
 function AnleggDetalj() {
@@ -26,6 +26,7 @@ function AnleggDetalj() {
   const [sletteType, setSletteType] = useState(null);
   const [bildeSomSkalSlettes, setBildeSomSkalSlettes] = useState(null);
   const [fullscreenBilde, setFullscreenBilde] = useState(null);
+  const [visNavnModal, setVisNavnModal] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -60,33 +61,28 @@ function AnleggDetalj() {
     }
   };
 
-const opprettUnderanlegg = async () => {
-  const navn = prompt(t('anleggDetalj.angiNavnUnderanlegg'));
-  if (!navn) return;
+  const opprettUnderanlegg = async (navn) => {
+    const hovednummer = anlegg.anleggsnummer;
+    const snapshot = await getDocs(collection(db, 'anlegg'));
+    const eksisterende = snapshot.docs
+      .map(doc => doc.data().anleggsnummer)
+      .filter(nr => typeof nr === 'string' && nr.startsWith(`${hovednummer}-`));
+    const nesteSuffiks = eksisterende.length + 1;
+    const nyttNummer = `${hovednummer}-${nesteSuffiks}`;
 
-  const hovednummer = anlegg.anleggsnummer;
-  const snapshot = await getDocs(collection(db, 'anlegg'));
-  const eksisterende = snapshot.docs
-    .map(doc => doc.data().anleggsnummer)
-    .filter(nr => typeof nr === 'string' && nr.startsWith(`${hovednummer}-`));
+    const nytt = {
+      navn,
+      status: t('status.nytt'),
+      anleggsnummer: nyttNummer,
+      informasjon: '',
+      bilder: [],
+      opprettet: new Date().toISOString(),
+      arkivert: false
+    };
 
-  const nesteSuffiks = eksisterende.length + 1;
-  const nyttNummer = `${hovednummer}-${nesteSuffiks}`;
-
-  const nytt = {
-    navn,
-    status: t('status.nytt'),
-    anleggsnummer: nyttNummer,
-    informasjon: '',
-    bilder: [],
-    opprettet: new Date().toISOString(),
-    arkivert: false
+    const docRef = await addDoc(collection(db, 'anlegg'), nytt);
+    navigate(`/anlegg/${docRef.id}`);
   };
-
-  const docRef = await addDoc(collection(db, 'anlegg'), nytt);
-  navigate(`/anlegg/${docRef.id}`);
-};
-
 
   const statusEmoji = (status, erArkivert) => {
     if (erArkivert) return '📦';
@@ -108,13 +104,12 @@ const opprettUnderanlegg = async () => {
 
         <div><strong>{t('anleggDetalj.anleggsnummer')}:</strong> {anlegg.anleggsnummer}</div>
 
-)} 
+        {!anlegg.anleggsnummer.toString().includes('-') && (
+          <UnderAnleggBobler hovednummer={anlegg.anleggsnummer} gjeldendeId={anlegg.id} />
+        )}
+
         <div><strong>{t('anleggDetalj.navn')}:</strong> {anlegg.navn}</div>
         <div><strong>{t('anleggDetalj.opprettet')}:</strong> {new Date(anlegg.opprettet).toLocaleString()}</div>
-
-           {!anlegg.anleggsnummer.toString().includes('-') && (
-  <UnderAnleggBobler hovednummer={anlegg.anleggsnummer} gjeldendeId={anlegg.id} />
-        )}
 
         <br />
         <label>{t('anleggDetalj.status')}:</label><br />
@@ -138,7 +133,7 @@ const opprettUnderanlegg = async () => {
         {!erArkivert && (
           <>
             <button onClick={oppdaterAnlegg}>💾 {t('anleggDetalj.lagre')}</button>
-            <button onClick={opprettUnderanlegg} style={{ marginLeft: '10px' }}>
+            <button onClick={() => setVisNavnModal(true)} style={{ marginLeft: '10px' }}>
               ➕ {t('anleggDetalj.opprettUnderanlegg')}
             </button>
             <br /><br />
@@ -256,6 +251,15 @@ const opprettUnderanlegg = async () => {
           setVisModal(false);
           setSletteType(null);
           setBildeSomSkalSlettes(null);
+        }}
+      />
+
+      <NavnModal
+        vis={visNavnModal}
+        onLukk={() => setVisNavnModal(false)}
+        onBekreft={(navn) => {
+          setVisNavnModal(false);
+          opprettUnderanlegg(navn);
         }}
       />
     </div>
