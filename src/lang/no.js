@@ -53,6 +53,9 @@ export default {
     laster: 'Laster anlegg...',
     bekreftAnleggSlett: 'Slette hele anlegget?',
     bekreftBildeSlett: 'Slette dette bildet?',
+    informasjon: 'Informasjon',
+    opprettUnderanlegg: 'Opprett under-anlegg',
+    underanlegg: 'Underanlegg',
   },
   nyMelding: {
     tittel: 'Ny melding',
