@@ -11,7 +11,7 @@ i18n
       no: { translation: no },
       en: { translation: en },
     },
-    lng: 'no', // Standard språk
+    lng: localStorage.getItem('sprak') || 'no', // ← Last valgt språk
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,
