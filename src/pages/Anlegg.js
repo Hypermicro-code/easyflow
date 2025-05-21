@@ -25,7 +25,9 @@ function Anlegg() {
     hentAnlegg();
   }, []);
 
-  const filtrert = anlegg.filter(a => a.arkivert === visArkiverte);
+  const filtrert = anlegg.filter(a =>
+    visArkiverte ? a.arkivert === true : !a.arkivert
+  );
 
   const statusEmoji = (status) => {
     const s = status?.toLowerCase();
