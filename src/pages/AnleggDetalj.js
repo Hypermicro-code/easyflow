@@ -103,13 +103,11 @@ function AnleggDetalj() {
         <h1>{t('anleggDetalj.tittel')} {statusEmoji(status, erArkivert)}</h1>
 
         <div><strong>{t('anleggDetalj.anleggsnummer')}:</strong> {anlegg.anleggsnummer}</div>
-
-        {!anlegg.anleggsnummer.toString().includes('-') && (
-          <UnderAnleggBobler hovednummer={anlegg.anleggsnummer} gjeldendeId={anlegg.id} />
-        )}
-
         <div><strong>{t('anleggDetalj.navn')}:</strong> {anlegg.navn}</div>
         <div><strong>{t('anleggDetalj.opprettet')}:</strong> {new Date(anlegg.opprettet).toLocaleString()}</div>
+                                {!anlegg.anleggsnummer.toString().includes('-') && (
+          <UnderAnleggBobler hovednummer={anlegg.anleggsnummer} gjeldendeId={anlegg.id} />
+        )}
 
         <br />
         <label>{t('anleggDetalj.status')}:</label><br />
