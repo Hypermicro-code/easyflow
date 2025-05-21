@@ -26,6 +26,7 @@ export default {
     anleggsnummer: 'Site number',
     opprettet: 'Created',
     navn: 'Name',
+    status: 'Status',
   },
   anleggDetalj: {
     tittel: 'Site details',
