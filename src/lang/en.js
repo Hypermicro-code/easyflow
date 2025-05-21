@@ -27,6 +27,10 @@ export default {
     opprettet: 'Created',
     navn: 'Name',
     status: 'Status',
+    arkiverteTittel: 'Archived sites',
+    visArkiverte: 'Show archived sites',
+    visAktive: 'Show active sites',
+    ingenArkiverte: 'No archived sites available'
   },
   anleggDetalj: {
     tittel: 'Site details',
