@@ -3,8 +3,10 @@ import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import Toast from '../components/Toast';
 import BekreftModal from '../components/BekreftModal';
+import { useTranslation } from 'react-i18next';
 
 function Meldinger() {
+  const { t } = useTranslation();
   const [meldinger, setMeldinger] = useState([]);
   const [toast, setToast] = useState('');
   const [visModal, setVisModal] = useState(false);
@@ -30,11 +32,11 @@ function Meldinger() {
   const slettMelding = async (id) => {
     try {
       await deleteDoc(doc(db, 'meldinger', id));
-      setToast('Melding slettet');
+      setToast(t('meldinger.slettet'));
       hentMeldinger();
     } catch (error) {
       console.error('Feil ved sletting:', error);
-      setToast('Feil ved sletting');
+      setToast(t('feil.sletting'));
     }
     setVisModal(false);
     setMeldingSomSkalSlettes(null);
@@ -42,9 +44,9 @@ function Meldinger() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>Meldinger</h1>
+      <h1>{t('meldinger.tittel')}</h1>
       {meldinger.length === 0 ? (
-        <p>Ingen meldinger tilgjengelig</p>
+        <p>{t('meldinger.ingen')}</p>
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {meldinger.map((m) => (
@@ -55,11 +57,11 @@ function Meldinger() {
               borderRadius: '10px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
             }}>
-              <div><strong>Anleggsnummer:</strong> {m.anleggsnummer}</div>
-              <div><strong>Melding:</strong><br />{m.tekst}</div>
+              <div><strong>{t('meldinger.anleggsnummer')}:</strong> {m.anleggsnummer}</div>
+              <div><strong>{t('meldinger.melding')}:</strong><br />{m.tekst}</div>
               <div style={{ fontSize: '0.9em', color: '#666' }}>
                 {m.opprettet && (
-                  <>Opprettet: {new Date(m.opprettet).toLocaleString()}</>
+                  <>{t('meldinger.opprettet')}: {new Date(m.opprettet).toLocaleString()}</>
                 )}
               </div>
               <button
@@ -77,7 +79,7 @@ function Meldinger() {
                   cursor: 'pointer'
                 }}
               >
-                🗑️ Slett
+                🗑️ {t('meldinger.slettKnapp')}
               </button>
             </li>
           ))}
@@ -85,10 +87,11 @@ function Meldinger() {
       )}
 
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
+
       {visModal && (
         <BekreftModal
           vis={visModal}
-          melding={`Slette melding tilknyttet anlegg ${meldingSomSkalSlettes?.anleggsnummer}?`}
+          melding={`${t('meldinger.bekreft')} ${meldingSomSkalSlettes?.anleggsnummer}?`}
           onBekreft={() => slettMelding(meldingSomSkalSlettes.id)}
           onAvbryt={() => {
             setVisModal(false);
