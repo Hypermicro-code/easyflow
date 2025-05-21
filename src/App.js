@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Home from './pages/Home';
 import NyttAnlegg from './pages/NyttAnlegg';
 import Anlegg from './pages/Anlegg';
 import AnleggDetalj from './pages/AnleggDetalj';
@@ -20,6 +21,7 @@ function App() {
 
         {/* 🔗 Navigasjon */}
         <nav style={{ marginBottom: '20px' }}>
+          <Link to="/">Hjem</Link> |{' '}
           <Link to="/anlegg">Anlegg</Link> |{' '}
           <Link to="/nytt-anlegg">Nytt anlegg</Link> |{' '}
           <Link to="/meldinger">Meldinger</Link> |{' '}
@@ -34,7 +36,7 @@ function App() {
           <Route path="/meldinger" element={<Meldinger />} />
           <Route path="/ny-melding" element={<NyMelding />} />
           <Route path="/offline-ko" element={<OfflineKo />} />
-          <Route path="/" element={<Anlegg />} />
+          <Route path="/" element={<Home />} />
         </Routes>
       </div>
     </Router>
