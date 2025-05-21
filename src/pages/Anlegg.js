@@ -43,10 +43,27 @@ function Anlegg() {
       ) : (
         <ul style={{ listStyle: 'none', padding: 0 }}>
           {anlegg.map((a) => (
-            <li key={a.id}>
-              <Link to={`/anlegg/${a.id}`}>
-                {statusEmoji(a.status)} {a.anleggsnummer} – {a.navn}
+            <li
+              key={a.id}
+              style={{
+                marginBottom: '15px',
+                padding: '12px 16px',
+                backgroundColor: '#f9f9f9',
+                borderRadius: '10px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Link to={`/anlegg/${a.id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1 }}>
+                <div><strong>{t('anlegg.anleggsnummer')}:</strong> {a.anleggsnummer}</div>
+                <div><strong>{t('anlegg.opprettet')}:</strong> {new Date(a.opprettet).toLocaleString()}</div>
+                <div><strong>{t('anlegg.navn')}:</strong> {a.navn}</div>
               </Link>
+              <div style={{ fontSize: '1.5rem', marginLeft: '10px' }}>
+                {statusEmoji(a.status)}
+              </div>
             </li>
           ))}
         </ul>
