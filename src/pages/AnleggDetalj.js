@@ -5,6 +5,7 @@ import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
 import Toast from '../components/Toast';
 import BekreftModal from '../components/BekreftModal';
+import { useTranslation } from 'react-i18next';
 
 function AnleggDetalj() {
   const { id } = useParams();
@@ -16,31 +17,30 @@ function AnleggDetalj() {
   const [fullscreenBilde, setFullscreenBilde] = useState(null);
   const [bildeSomSkalSlettes, setBildeSomSkalSlettes] = useState(null);
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const { t } = useTranslation();
 
   const [navn, setNavn] = useState('');
   const [status, setStatus] = useState('');
   const [anleggsnummer, setAnleggsnummer] = useState('');
 
-  const fileInputRef = useRef(null);
-
-  const fetchAnlegg = async () => {
-    const docRef = doc(db, 'anlegg', id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      setAnlegg({ id: docSnap.id, ...data });
-      setNavn(data.navn || '');
-      setStatus(data.status || '');
-      setAnleggsnummer(data.anleggsnummer || '');
-      setBilder(data.bilder || []);
-    } else {
-      setToast('Anlegg ikke funnet');
-    }
-  };
-
   useEffect(() => {
+    const fetchAnlegg = async () => {
+      const docRef = doc(db, 'anlegg', id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        setAnlegg({ id: docSnap.id, ...data });
+        setNavn(data.navn || '');
+        setStatus(data.status || '');
+        setAnleggsnummer(data.anleggsnummer || '');
+        setBilder(data.bilder || []);
+      } else {
+        setToast(t('feil.anleggIkkeFunnet'));
+      }
+    };
     fetchAnlegg();
-  }, [id]);
+  }, [id, t]);
 
   const oppdaterAnlegg = async () => {
     try {
@@ -49,11 +49,10 @@ function AnleggDetalj() {
         status,
         anleggsnummer: parseInt(anleggsnummer)
       });
-      setToast('Anlegg oppdatert');
-      fetchAnlegg();
+      setToast(t('anleggDetalj.lagret'));
     } catch (error) {
       console.error('Feil ved oppdatering:', error);
-      setToast('Feil ved oppdatering');
+      setToast(t('feil.lagring'));
     }
   };
 
@@ -68,11 +67,11 @@ function AnleggDetalj() {
       }
       const oppdatertListe = [...(anlegg.bilder || []), ...nyeUrls];
       await updateDoc(doc(db, 'anlegg', id), { bilder: oppdatertListe });
-      setToast(`${nyeUrls.length} bilde(r) lastet opp`);
-      fetchAnlegg();
+      setToast(t('anleggDetalj.bildeLastetOpp'));
+      setBilder(oppdatertListe);
     } catch (error) {
       console.error('Feil ved opplasting:', error);
-      setToast('Feil ved bildeopplasting');
+      setToast(t('feil.bildeOpplasting'));
     }
   };
 
@@ -82,13 +81,12 @@ function AnleggDetalj() {
       await deleteObject(bildeRef);
       const gjenværende = bilder.filter(b => b !== url);
       await updateDoc(doc(db, 'anlegg', id), { bilder: gjenværende });
-      setToast('Bilde slettet');
-      fetchAnlegg();
+      setToast(t('anleggDetalj.bildeSlettet'));
+      setBilder(gjenværende);
     } catch (error) {
       console.error('Feil ved sletting:', error);
-      setToast('Feil ved sletting av bilde');
+      setToast(t('feil.bildeSletting'));
     }
-
     setBildeSomSkalSlettes(null);
     setVisModal(false);
   };
@@ -100,82 +98,55 @@ function AnleggDetalj() {
         await deleteObject(bildeRef);
       }
       await deleteDoc(doc(db, 'anlegg', id));
-      setToast('Anlegg slettet');
+      setToast(t('anleggDetalj.slettet'));
       navigate('/anlegg');
     } catch (error) {
       console.error('Feil ved sletting av anlegg:', error);
-      setToast('Feil ved sletting av anlegg');
+      setToast(t('feil.sletting'));
     }
     setVisModal(false);
     setSletteType(null);
-  };
-
-  const statusEmoji = (status) => {
-    const s = status?.toLowerCase();
-    if (s === 'ok') return '🟢';
-    if (s === 'avvik') return '🔴';
-    if (s === 'pågår' || s === 'under arbeid') return '🟠';
-    return '⚪️';
   };
 
   const triggerFileDialog = () => {
     fileInputRef.current.click();
   };
 
-  if (!anlegg) return <div style={{ padding: '20px' }}>Laster anlegg...</div>;
+  const statusEmoji = (status) => {
+    const s = status?.toLowerCase();
+    if (s === t('status.nytt').toLowerCase()) return '🆕';
+    if (s === t('status.underArbeid').toLowerCase()) return '🛠️';
+    if (s === t('status.tilKontroll').toLowerCase()) return '🔍';
+    if (s === t('status.ferdig').toLowerCase()) return '✅';
+    if (s === t('status.tilUtbedring').toLowerCase()) return '⚠️';
+    return '⚪️';
+  };
+
+  if (!anlegg) return <div style={{ padding: '20px' }}>{t('anleggDetalj.laster')}</div>;
 
   return (
     <div style={{ display: 'flex', padding: '20px', gap: '30px' }}>
-      {/* VENSTRE */}
       <div style={{ flex: 1 }}>
-        <h1>Anleggsdetaljer</h1>
+        <h1>{t('anleggDetalj.tittel')}</h1>
 
-        <label>Anleggsnummer:</label><br />
-        <input
-          type="number"
-          value={anleggsnummer}
-          onChange={(e) => setAnleggsnummer(e.target.value)}
-        /><br /><br />
+        <label>{t('anleggDetalj.anleggsnummer')}:</label><br />
+        <input type="number" value={anleggsnummer} onChange={(e) => setAnleggsnummer(e.target.value)} /><br /><br />
 
-        <label>Navn:</label><br />
-        <input
-          type="text"
-          value={navn}
-          onChange={(e) => setNavn(e.target.value)}
-        /><br /><br />
+        <label>{t('anleggDetalj.navn')}:</label><br />
+        <input type="text" value={navn} onChange={(e) => setNavn(e.target.value)} /><br /><br />
 
-<label>Status:</label><br />
-<select
-  value={status}
-  onChange={(e) => setStatus(e.target.value)}
->
-  <option>Nytt anlegg</option>
-  <option>Under arbeid</option>
-  <option>Til kontroll</option>
-  <option>Ferdig</option>
-  <option>Til utbedring</option>
-</select><br /><br />
+        <label>{t('anleggDetalj.status')}:</label><br />
+        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+          <option>{t('status.nytt')}</option>
+          <option>{t('status.underArbeid')}</option>
+          <option>{t('status.tilKontroll')}</option>
+          <option>{t('status.ferdig')}</option>
+          <option>{t('status.tilUtbedring')}</option>
+        </select><br /><br />
 
-        <button
-          onClick={oppdaterAnlegg}
-          style={{ marginBottom: '10px', padding: '10px 20px', borderRadius: '6px', border: 'none', cursor: 'pointer', backgroundColor: '#4CAF50', color: 'white' }}
-        >
-          💾 Lagre endringer
-        </button>{' '}
+        <button onClick={oppdaterAnlegg}>💾 {t('anleggDetalj.lagre')}</button>{' '}
 
-        <button
-          onClick={triggerFileDialog}
-          style={{
-            backgroundColor: '#2196F3',
-            color: 'white',
-            padding: '8px 16px',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer'
-          }}
-        >
-          📷 Last opp bilde(r)
-        </button>
+        <button onClick={triggerFileDialog} style={{ marginLeft: '10px' }}>📷 {t('anleggDetalj.lastOpp')}</button>
         <input
           ref={fileInputRef}
           type="file"
@@ -186,73 +157,47 @@ function AnleggDetalj() {
           style={{ display: 'none' }}
         />
 
-        <p><strong>Opprettet:</strong> {new Date(anlegg.opprettet).toLocaleString()}</p>
+        <p><strong>{t('anleggDetalj.opprettet')}:</strong> {new Date(anlegg.opprettet).toLocaleString()}</p>
 
         {!anlegg.arkivert && (
-          <button
-            onClick={async () => {
-              await updateDoc(doc(db, 'anlegg', id), { arkivert: true });
-              setToast('Anlegg arkivert');
-              navigate('/anlegg');
-            }}
-            style={{
-              marginTop: '20px',
-              backgroundColor: '#999',
-              color: 'white',
-              padding: '10px 20px',
-              border: 'none',
-              borderRadius: '6px',
-              cursor: 'pointer'
-            }}
-          >
-            📦 Arkiver anlegg
+          <button onClick={async () => {
+            await updateDoc(doc(db, 'anlegg', id), { arkivert: true });
+            setToast(t('anleggDetalj.arkivert'));
+            navigate('/anlegg');
+          }} style={{ marginTop: '20px' }}>
+            📦 {t('anleggDetalj.arkiver')}
           </button>
         )}
 
         <hr style={{ margin: '20px 0' }} />
 
-        <button
-          onClick={() => { setVisModal(true); setSletteType('anlegg'); }}
-          style={{ backgroundColor: '#f44336', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-        >
-          🗑️ Slett hele anlegget
+        <button onClick={() => { setVisModal(true); setSletteType('anlegg'); }} style={{ backgroundColor: '#f44336', color: 'white' }}>
+          🗑️ {t('anleggDetalj.slett')}
         </button>
       </div>
 
-      {/* HØYRE */}
+      {/* Høyre side – galleri */}
       <div style={{ flex: '0 0 300px', maxHeight: '80vh', overflowY: 'auto', paddingRight: '10px' }}>
-        <h3>Bilder</h3>
+        <h3>{t('anleggDetalj.bilder')}</h3>
         {bilder.length > 0 ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {bilder.map((url, idx) => (
-              <div key={idx}>
-                <img
-                  src={url}
-                  alt={`Bilde ${idx + 1}`}
-                  style={{ width: '100%', cursor: 'pointer', borderRadius: '6px' }}
-                  onClick={() => setFullscreenBilde(url)}
-                />
-                <button
-                  onClick={() => {
-                    setBildeSomSkalSlettes(url);
-                    setVisModal(true);
-                  }}
-                  style={{
-                    marginTop: '5px',
-                    backgroundColor: '#eee',
-                    padding: '6px 12px',
-                    border: 'none',
-                    borderRadius: '4px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  🗑️ Slett
-                </button>
-              </div>
-            ))}
-          </div>
+          bilder.map((url, idx) => (
+            <div key={idx}>
+              <img
+                src={url}
+                alt={`Bilde ${idx + 1}`}
+                style={{ width: '100%', cursor: 'pointer', borderRadius: '6px' }}
+                onClick={() => setFullscreenBilde(url)}
+              />
+              <button onClick={() => {
+                setBildeSomSkalSlettes(url);
+                setVisModal(true);
+              }}>
+                🗑️ {t('anleggDetalj.slettBilde')}
+              </button>
+            </div>
+          ))
         ) : (
-          <p style={{ fontStyle: 'italic', color: '#666' }}>Ingen bilder</p>
+          <p>{t('anleggDetalj.ingenBilder')}</p>
         )}
       </div>
 
@@ -262,31 +207,24 @@ function AnleggDetalj() {
           style={{
             position: 'fixed',
             top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            backgroundColor: 'rgba(0,0,0,0.8)',
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             zIndex: 999
           }}
         >
-          <img
-            src={fullscreenBilde}
-            alt="Fullskjerm"
-            style={{ maxWidth: '90%', maxHeight: '90%' }}
-          />
+          <img src={fullscreenBilde} alt="Fullskjerm" style={{ maxWidth: '90%', maxHeight: '90%' }} />
         </div>
       )}
 
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
       <BekreftModal
         vis={visModal}
-        melding={bildeSomSkalSlettes ? 'Slette dette bildet?' : 'Slette hele anlegget?'}
+        melding={bildeSomSkalSlettes ? t('anleggDetalj.bekreftBildeSlett') : t('anleggDetalj.bekreftAnleggSlett')}
         onBekreft={() => {
-          if (bildeSomSkalSlettes) {
-            slettBilde(bildeSomSkalSlettes);
-          } else {
-            slettAnlegg();
-          }
+          if (bildeSomSkalSlettes) slettBilde(bildeSomSkalSlettes);
+          else slettAnlegg();
         }}
         onAvbryt={() => {
           setVisModal(false);
