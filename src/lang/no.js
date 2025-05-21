@@ -27,6 +27,10 @@ export default {
     opprettet: 'Opprettet',
     navn: 'Navn',
     status: 'Status',
+    arkiverteTittel: 'Arkiverte anlegg',
+    visArkiverte: 'Vis arkiverte anlegg',
+    visAktive: 'Vis aktive anlegg',
+   ingenArkiverte: 'Ingen arkiverte anlegg tilgjengelig'
   },
   anleggDetalj: {
     tittel: 'Anleggsdetaljer',
