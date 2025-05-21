@@ -7,6 +7,7 @@ import {
 import {
   ref, uploadBytes, getDownloadURL, deleteObject
 } from 'firebase/storage';
+import UnderAnleggBobler from '../components/UnderAnleggBobler';
 import Toast from '../components/Toast';
 import BekreftModal from '../components/BekreftModal';
 import UnderAnleggListe from '../components/UnderAnleggListe';
