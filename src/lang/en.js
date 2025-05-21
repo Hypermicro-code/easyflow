@@ -53,6 +53,9 @@ export default {
     laster: 'Loading site...',
     bekreftAnleggSlett: 'Delete this site?',
     bekreftBildeSlett: 'Delete this image?',
+    informasjon: 'Information',
+    opprettUnderanlegg: 'Create sub site',
+    underanlegg: 'Sub site',
   },
   nyMelding: {
     tittel: 'New message',
