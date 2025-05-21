@@ -17,6 +17,7 @@ export default {
     navn: 'Anleggsnavn',
     status: 'Status',
     anleggsnummer: 'Anleggsnummer',
+    duplikat: 'Anleggsnummeret er allerede i bruk',
     knapp: 'Lag anlegg',
     lagret: 'Anlegg lagret',
   },
