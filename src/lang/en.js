@@ -17,6 +17,7 @@ export default {
     navn: 'Site name',
     status: 'Status',
     anleggsnummer: 'Site number',
+    duplikat: 'Site number is already in use',
     knapp: 'Create site',
     lagret: 'Site saved',
   },
