@@ -25,9 +25,10 @@ function Anlegg() {
     hentAnlegg();
   }, []);
 
-  const filtrert = anlegg.filter(a =>
-    visArkiverte ? a.arkivert === true : !a.arkivert
-  );
+ const filtrert = anlegg.filter(a =>
+  (visArkiverte ? a.arkivert === true : !a.arkivert) &&
+  !a.anleggsnummer.toString().includes('-') // 🧠 Kun hovedanlegg
+);
 
   const statusEmoji = (status) => {
     const s = status?.toLowerCase();
