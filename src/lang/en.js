@@ -56,6 +56,7 @@ export default {
     informasjon: 'Information',
     opprettUnderanlegg: 'Create sub site',
     underanlegg: 'Sub site',
+    angiNavnUnderanlegg: 'Enter name for the sub site:'
   },
   nyMelding: {
     tittel: 'New message',
