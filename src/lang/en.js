@@ -56,8 +56,14 @@ export default {
     informasjon: 'Information',
     opprettUnderanlegg: 'Create sub site',
     underanlegg: 'Sub site',
-    angiNavnUnderanlegg: 'Enter name for the sub site:'
+    angiNavnUnderanlegg: 'Enter name for the sub site:',
+    opprettUnderanlegg: 'Create sub-project',
+    angiNavnUnderanlegg: 'Enter a name for the sub-project:'
   },
+   knapp: {
+  avbryt: 'Cancel',
+  opprett: 'Create'
+} 
   nyMelding: {
     tittel: 'New message',
     anleggsnummer: 'Site number',
@@ -102,4 +108,5 @@ export default {
     offlineLagret: 'Offline – saved locally',
     anleggIkkeFunnet: 'Site not found',
   }
+
 };
