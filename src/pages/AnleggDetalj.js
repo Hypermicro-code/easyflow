@@ -1,28 +1,30 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { db, storage } from '../firebase';
-import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
-import { ref, deleteObject, uploadBytes, getDownloadURL } from 'firebase/storage';
+import {
+  doc, getDoc, updateDoc, deleteDoc, addDoc, getDocs, collection
+} from 'firebase/firestore';
+import {
+  ref, uploadBytes, getDownloadURL, deleteObject
+} from 'firebase/storage';
 import Toast from '../components/Toast';
 import BekreftModal from '../components/BekreftModal';
 import { useTranslation } from 'react-i18next';
 
 function AnleggDetalj() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
   const [anlegg, setAnlegg] = useState(null);
+  const [status, setStatus] = useState('');
+  const [informasjon, setInformasjon] = useState('');
+  const [bilder, setBilder] = useState([]);
   const [toast, setToast] = useState('');
   const [visModal, setVisModal] = useState(false);
   const [sletteType, setSletteType] = useState(null);
-  const [bilder, setBilder] = useState([]);
-  const [fullscreenBilde, setFullscreenBilde] = useState(null);
   const [bildeSomSkalSlettes, setBildeSomSkalSlettes] = useState(null);
-  const navigate = useNavigate();
+  const [fullscreenBilde, setFullscreenBilde] = useState(null);
   const fileInputRef = useRef(null);
-  const { t } = useTranslation();
-
-  const [navn, setNavn] = useState('');
-  const [status, setStatus] = useState('');
-  const [anleggsnummer, setAnleggsnummer] = useState('');
 
   useEffect(() => {
     const fetchAnlegg = async () => {
@@ -31,9 +33,8 @@ function AnleggDetalj() {
       if (docSnap.exists()) {
         const data = docSnap.data();
         setAnlegg({ id: docSnap.id, ...data });
-        setNavn(data.navn || '');
         setStatus(data.status || '');
-        setAnleggsnummer(data.anleggsnummer || '');
+        setInformasjon(data.informasjon || '');
         setBilder(data.bilder || []);
       } else {
         setToast(t('feil.anleggIkkeFunnet'));
@@ -41,13 +42,11 @@ function AnleggDetalj() {
     };
     fetchAnlegg();
   }, [id, t]);
-
   const oppdaterAnlegg = async () => {
     try {
       await updateDoc(doc(db, 'anlegg', id), {
-        navn,
         status,
-        anleggsnummer: parseInt(anleggsnummer)
+        informasjon,
       });
       setToast(t('anleggDetalj.lagret'));
     } catch (error) {
@@ -56,63 +55,34 @@ function AnleggDetalj() {
     }
   };
 
-  const lastOppBilder = async (files) => {
-    try {
-      const nyeUrls = [];
-      for (const file of files) {
-        const bildeRef = ref(storage, `anlegg/${Date.now()}_${file.name}`);
-        const snapshot = await uploadBytes(bildeRef, file);
-        const url = await getDownloadURL(snapshot.ref);
-        nyeUrls.push(url);
-      }
-      const oppdatertListe = [...(anlegg.bilder || []), ...nyeUrls];
-      await updateDoc(doc(db, 'anlegg', id), { bilder: oppdatertListe });
-      setToast(t('anleggDetalj.bildeLastetOpp'));
-      setBilder(oppdatertListe);
-    } catch (error) {
-      console.error('Feil ved opplasting:', error);
-      setToast(t('feil.bildeOpplasting'));
-    }
+  const opprettUnderanlegg = async () => {
+    const hovednummer = anlegg.anleggsnummer;
+    const snapshot = await getDocs(collection(db, 'anlegg'));
+    const eksisterende = snapshot.docs
+      .map(doc => doc.data().anleggsnummer)
+      .filter(nr => typeof nr === 'string' && nr.startsWith(`${hovednummer}-`));
+
+    const nesteSuffiks = eksisterende.length + 1;
+    const nyttNummer = `${hovednummer}-${nesteSuffiks}`;
+
+    const nytt = {
+      navn: `${anlegg.navn} - ${t('anleggDetalj.underanlegg')}`,
+      status: t('status.nytt'),
+      anleggsnummer: nyttNummer,
+      informasjon: '',
+      bilder: [],
+      opprettet: new Date().toISOString(),
+      arkivert: false
+    };
+
+    const docRef = await addDoc(collection(db, 'anlegg'), nytt);
+    navigate(`/anlegg/${docRef.id}`);
   };
 
-  const slettBilde = async (url) => {
-    try {
-      const bildeRef = ref(storage, url);
-      await deleteObject(bildeRef);
-      const gjenværende = bilder.filter(b => b !== url);
-      await updateDoc(doc(db, 'anlegg', id), { bilder: gjenværende });
-      setToast(t('anleggDetalj.bildeSlettet'));
-      setBilder(gjenværende);
-    } catch (error) {
-      console.error('Feil ved sletting:', error);
-      setToast(t('feil.bildeSletting'));
-    }
-    setBildeSomSkalSlettes(null);
-    setVisModal(false);
-  };
+  const erArkivert = anlegg?.arkivert;
 
-  const slettAnlegg = async () => {
-    try {
-      for (const url of bilder) {
-        const bildeRef = ref(storage, url);
-        await deleteObject(bildeRef);
-      }
-      await deleteDoc(doc(db, 'anlegg', id));
-      setToast(t('anleggDetalj.slettet'));
-      navigate('/anlegg');
-    } catch (error) {
-      console.error('Feil ved sletting av anlegg:', error);
-      setToast(t('feil.sletting'));
-    }
-    setVisModal(false);
-    setSletteType(null);
-  };
-
-  const triggerFileDialog = () => {
-    fileInputRef.current.click();
-  };
-
-  const statusEmoji = (status) => {
+  const statusEmoji = (status, erArkivert) => {
+    if (erArkivert) return '📦';
     const s = status?.toLowerCase();
     if (s === t('status.nytt').toLowerCase()) return '🆕';
     if (s === t('status.underArbeid').toLowerCase()) return '🛠️';
@@ -127,16 +97,17 @@ function AnleggDetalj() {
   return (
     <div style={{ display: 'flex', padding: '20px', gap: '30px' }}>
       <div style={{ flex: 1 }}>
-        <h1>{t('anleggDetalj.tittel')}</h1>
+        <h1>
+          {t('anleggDetalj.tittel')} {statusEmoji(status, erArkivert)}
+        </h1>
 
-        <label>{t('anleggDetalj.anleggsnummer')}:</label><br />
-        <input type="number" value={anleggsnummer} onChange={(e) => setAnleggsnummer(e.target.value)} /><br /><br />
+        <div><strong>{t('anleggDetalj.anleggsnummer')}:</strong> {anlegg.anleggsnummer}</div>
+        <div><strong>{t('anleggDetalj.navn')}:</strong> {anlegg.navn}</div>
+        <div><strong>{t('anleggDetalj.opprettet')}:</strong> {new Date(anlegg.opprettet).toLocaleString()}</div>
 
-        <label>{t('anleggDetalj.navn')}:</label><br />
-        <input type="text" value={navn} onChange={(e) => setNavn(e.target.value)} /><br /><br />
-
+        <br />
         <label>{t('anleggDetalj.status')}:</label><br />
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+        <select value={status} onChange={(e) => setStatus(e.target.value)} disabled={erArkivert}>
           <option>{t('status.nytt')}</option>
           <option>{t('status.underArbeid')}</option>
           <option>{t('status.tilKontroll')}</option>
@@ -144,56 +115,99 @@ function AnleggDetalj() {
           <option>{t('status.tilUtbedring')}</option>
         </select><br /><br />
 
-        <button onClick={oppdaterAnlegg}>💾 {t('anleggDetalj.lagre')}</button>{' '}
+        <label>{t('anleggDetalj.informasjon')}:</label><br />
+        <textarea
+          value={informasjon}
+          onChange={(e) => setInformasjon(e.target.value)}
+          rows={4}
+          cols={40}
+          disabled={erArkivert}
+        /><br /><br />
 
-        <button onClick={triggerFileDialog} style={{ marginLeft: '10px' }}>📷 {t('anleggDetalj.lastOpp')}</button>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          multiple
-          onChange={(e) => lastOppBilder(e.target.files)}
-          style={{ display: 'none' }}
-        />
+        {!erArkivert && (
+          <>
+            <button onClick={oppdaterAnlegg}>💾 {t('anleggDetalj.lagre')}</button>
+            <button onClick={opprettUnderanlegg} style={{ marginLeft: '10px' }}>
+              ➕ {t('anleggDetalj.opprettUnderanlegg')}
+            </button>
+          </>
+        )}
+        {!erArkivert && (
+          <>
+            <br /><br />
+            <button onClick={() => fileInputRef.current.click()}>
+              📷 {t('anleggDetalj.lastOpp')}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const files = Array.from(e.target.files);
+                const nyeUrls = [];
 
-        <p><strong>{t('anleggDetalj.opprettet')}:</strong> {new Date(anlegg.opprettet).toLocaleString()}</p>
+                for (const file of files) {
+                  const refPath = `anlegg/${Date.now()}_${file.name}`;
+                  const filRef = ref(storage, refPath);
+                  await uploadBytes(filRef, file);
+                  const url = await getDownloadURL(filRef);
+                  nyeUrls.push(url);
+                }
 
-        {!anlegg.arkivert && (
-          <button onClick={async () => {
-            await updateDoc(doc(db, 'anlegg', id), { arkivert: true });
-            setToast(t('anleggDetalj.arkivert'));
-            navigate('/anlegg');
-          }} style={{ marginTop: '20px' }}>
-            📦 {t('anleggDetalj.arkiver')}
-          </button>
+                const nyeBilder = [...(bilder || []), ...nyeUrls];
+                await updateDoc(doc(db, 'anlegg', id), { bilder: nyeBilder });
+                setBilder(nyeBilder);
+                setToast(t('anleggDetalj.bildeLastetOpp'));
+              }}
+            />
+          </>
         )}
 
-        <hr style={{ margin: '20px 0' }} />
+        {!erArkivert && (
+          <div style={{ marginTop: '20px' }}>
+            <button onClick={async () => {
+              await updateDoc(doc(db, 'anlegg', id), { arkivert: true });
+              setToast(t('anleggDetalj.arkivert'));
+              navigate('/anlegg');
+            }}>
+              📦 {t('anleggDetalj.arkiver')}
+            </button>
+          </div>
+        )}
 
-        <button onClick={() => { setVisModal(true); setSletteType('anlegg'); }} style={{ backgroundColor: '#f44336', color: 'white' }}>
-          🗑️ {t('anleggDetalj.slett')}
-        </button>
+        <div style={{ marginTop: '30px' }}>
+          <button onClick={() => {
+            setSletteType('anlegg');
+            setVisModal(true);
+          }} style={{ backgroundColor: '#f44336', color: 'white' }}>
+            🗑️ {t('anleggDetalj.slett')}
+          </button>
+        </div>
       </div>
 
-      {/* Høyre side – galleri */}
-      <div style={{ flex: '0 0 300px', maxHeight: '80vh', overflowY: 'auto', paddingRight: '10px' }}>
+      {/* Galleri */}
+      <div style={{ flex: 1, maxHeight: '80vh', overflowY: 'auto' }}>
         <h3>{t('anleggDetalj.bilder')}</h3>
         {bilder.length > 0 ? (
           bilder.map((url, idx) => (
             <div key={idx}>
               <img
                 src={url}
-                alt={`Bilde ${idx + 1}`}
-                style={{ width: '100%', cursor: 'pointer', borderRadius: '6px' }}
+                alt={`bilde-${idx}`}
+                style={{ width: '100%', borderRadius: '6px', marginBottom: '10px', cursor: 'pointer' }}
                 onClick={() => setFullscreenBilde(url)}
               />
-              <button onClick={() => {
-                setBildeSomSkalSlettes(url);
-                setVisModal(true);
-              }}>
-                🗑️ {t('anleggDetalj.slettBilde')}
-              </button>
+              {!erArkivert && (
+                <button onClick={() => {
+                  setSletteType('bilde');
+                  setBildeSomSkalSlettes(url);
+                  setVisModal(true);
+                }}>
+                  🗑️ {t('anleggDetalj.slettBilde')}
+                </button>
+              )}
             </div>
           ))
         ) : (
@@ -207,27 +221,40 @@ function AnleggDetalj() {
           style={{
             position: 'fixed',
             top: 0, left: 0, right: 0, bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.8)',
+            backgroundColor: 'rgba(0,0,0,0.9)',
             display: 'flex',
-            justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 999
+            justifyContent: 'center',
+            zIndex: 1000
           }}
         >
-          <img src={fullscreenBilde} alt="Fullskjerm" style={{ maxWidth: '90%', maxHeight: '90%' }} />
+          <img src={fullscreenBilde} alt="fullscreen" style={{ maxWidth: '90%', maxHeight: '90%' }} />
         </div>
       )}
 
       {toast && <Toast message={toast} onClose={() => setToast('')} />}
+
       <BekreftModal
         vis={visModal}
-        melding={bildeSomSkalSlettes ? t('anleggDetalj.bekreftBildeSlett') : t('anleggDetalj.bekreftAnleggSlett')}
-        onBekreft={() => {
-          if (bildeSomSkalSlettes) slettBilde(bildeSomSkalSlettes);
-          else slettAnlegg();
+        melding={sletteType === 'bilde' ? t('anleggDetalj.bekreftBildeSlett') : t('anleggDetalj.bekreftAnleggSlett')}
+        onBekreft={async () => {
+          if (sletteType === 'bilde') {
+            const refToDel = ref(storage, bildeSomSkalSlettes);
+            await deleteObject(refToDel);
+            const nyeBilder = bilder.filter(b => b !== bildeSomSkalSlettes);
+            await updateDoc(doc(db, 'anlegg', id), { bilder: nyeBilder });
+            setBilder(nyeBilder);
+            setToast(t('anleggDetalj.bildeSlettet'));
+          } else {
+            await deleteDoc(doc(db, 'anlegg', id));
+            setToast(t('anleggDetalj.slettet'));
+            navigate('/anlegg');
+          }
+          setVisModal(false);
         }}
         onAvbryt={() => {
           setVisModal(false);
+          setSletteType(null);
           setBildeSomSkalSlettes(null);
         }}
       />
