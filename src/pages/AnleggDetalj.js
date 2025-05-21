@@ -104,7 +104,9 @@ function AnleggDetalj() {
         <div><strong>{t('anleggDetalj.anleggsnummer')}:</strong> {anlegg.anleggsnummer}</div>
         <div><strong>{t('anleggDetalj.navn')}:</strong> {anlegg.navn}</div>
         <div><strong>{t('anleggDetalj.opprettet')}:</strong> {new Date(anlegg.opprettet).toLocaleString()}</div>
-
+        {!anlegg.anleggsnummer.toString().includes('-') && (
+        <UnderAnleggListe hovednummer={anlegg.anleggsnummer} gjeldendeId={anlegg.id} />
+        )}
         <br />
         <label>{t('anleggDetalj.status')}:</label><br />
         <select value={status} onChange={(e) => setStatus(e.target.value)} disabled={erArkivert}>
