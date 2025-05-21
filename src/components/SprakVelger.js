@@ -6,6 +6,7 @@ function SprakVelger() {
 
   const endreSprak = (valgt) => {
     i18n.changeLanguage(valgt);
+    localStorage.setItem('sprak', valgt); // ← Lagre valget
   };
 
   return (
