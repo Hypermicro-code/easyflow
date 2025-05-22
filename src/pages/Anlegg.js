@@ -1,102 +1,86 @@
+// Anlegg.js – med "Opprett nytt anlegg" som modal
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, addDoc, query, orderBy } from 'firebase/firestore';
 import { db } from '../firebase';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import BekreftModal from '../components/BekreftModal';
 
 function Anlegg() {
   const { t } = useTranslation();
   const [anlegg, setAnlegg] = useState([]);
-  const [visArkiverte, setVisArkiverte] = useState(false);
+  const [visModal, setVisModal] = useState(false);
+  const [nyttNavn, setNyttNavn] = useState('');
+  const [nyStatus, setNyStatus] = useState('Nytt anlegg');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const hentAnlegg = async () => {
-      try {
-        const snapshot = await getDocs(collection(db, 'anlegg'));
-        const liste = snapshot.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
-          .sort((a, b) => b.anleggsnummer - a.anleggsnummer);
-        setAnlegg(liste);
-      } catch (error) {
-        console.error('Feil ved henting av anlegg:', error);
-      }
+      const q = query(collection(db, 'anlegg'), orderBy('anleggsnummer', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setAnlegg(data.filter(a => !a.arkivert));
     };
-
     hentAnlegg();
   }, []);
 
- const filtrert = anlegg.filter(a =>
-  (visArkiverte ? a.arkivert === true : !a.arkivert) &&
-  !a.anleggsnummer.toString().includes('-') // 🧠 Kun hovedanlegg
-);
+  const finnNesteAnleggsnummer = () => {
+    const numre = anlegg.map(a => parseInt(a.anleggsnummer)).filter(n => !isNaN(n));
+    return numre.length > 0 ? Math.max(...numre) + 1 : 1;
+  };
 
-  const statusEmoji = (status) => {
-    const s = status?.toLowerCase();
-    if (s === t('status.nytt').toLowerCase()) return '🆕';
-    if (s === t('status.underArbeid').toLowerCase()) return '🛠️';
-    if (s === t('status.tilKontroll').toLowerCase()) return '🔍';
-    if (s === t('status.ferdig').toLowerCase()) return '✅';
-    if (s === t('status.tilUtbedring').toLowerCase()) return '⚠️';
-    return '⚪️';
+  const opprettAnlegg = async () => {
+    const nyttAnleggsnummer = finnNesteAnleggsnummer();
+    await addDoc(collection(db, 'anlegg'), {
+      navn: nyttNavn,
+      status: nyStatus,
+      anleggsnummer: nyttAnleggsnummer,
+      opprettet: new Date().toISOString(),
+      arkivert: false
+    });
+    setVisModal(false);
+    window.location.reload();
   };
 
   return (
     <div style={{ padding: '20px' }}>
-      <h1>
-        {visArkiverte ? t('anlegg.arkiverteTittel') : t('anlegg.tittel')}
-      </h1>
+      <h2>{t('anlegg.oversikt')}</h2>
+      <button onClick={() => setVisModal(true)} style={{ marginBottom: '20px' }}>➕ {t('anlegg.opprettNytt')}</button>
 
-      <button onClick={() => setVisArkiverte(!visArkiverte)} style={{ marginBottom: '16px' }}>
-        {visArkiverte ? t('anlegg.visAktive') : t('anlegg.visArkiverte')}
-      </button>
-
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '1fr 2fr 2fr 60px',
-        gap: '10px',
-        fontWeight: 'bold',
-        position: 'sticky',
-        top: '0',
-        backgroundColor: '#ffffff',
-        padding: '10px 16px',
-        borderBottom: '2px solid #ccc',
-        zIndex: 10
-      }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr 1fr', fontWeight: 'bold', background: '#eee', padding: '10px', borderRadius: '10px 10px 0 0' }}>
         <div>{t('anlegg.anleggsnummer')}</div>
         <div>{t('anlegg.opprettet')}</div>
         <div>{t('anlegg.navn')}</div>
         <div>{t('anlegg.status')}</div>
       </div>
+      {anlegg.map((a) => (
+        <div
+          key={a.id}
+          onClick={() => navigate(`/anlegg/${a.id}`)}
+          style={{ cursor: 'pointer', display: 'grid', gridTemplateColumns: '1fr 1fr 2fr 1fr', padding: '10px', borderBottom: '1px solid #ddd', background: '#f9f9f9' }}>
+          <div><strong>{a.anleggsnummer}</strong></div>
+          <div>{new Date(a.opprettet).toLocaleDateString()}</div>
+          <div><strong>{a.navn}</strong></div>
+          <div>{a.status === 'Ferdig' ? '✅' : a.status === 'Til utbedring' ? '🛠️' : a.status === 'Til kontroll' ? '🔍' : a.status === 'Under arbeid' ? '🚧' : '🆕'}</div>
+        </div>
+      ))}
 
-      {filtrert.length === 0 ? (
-        <p>{visArkiverte ? t('anlegg.ingenArkiverte') : t('anlegg.ingen')}</p>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {filtrert.map((a) => (
-            <li key={a.id} style={{ marginBottom: '8px' }}>
-              <Link
-                to={`/anlegg/${a.id}`}
-                style={{
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 2fr 2fr 60px',
-                  alignItems: 'center',
-                  padding: '8px 16px',
-                  backgroundColor: '#f9f9f9',
-                  borderRadius: '10px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-                }}
-              >
-                <div style={{ fontWeight: 'bold' }}>{a.anleggsnummer}</div>
-                <div>{new Date(a.opprettet).toLocaleString()}</div>
-                <div style={{ fontWeight: 'bold' }}>{a.navn}</div>
-                <div style={{ fontSize: '1.5rem' }}>{statusEmoji(a.status)}</div>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+      <BekreftModal
+        vis={visModal}
+        tittel={t('anlegg.modalTittel')}
+        onLukk={() => setVisModal(false)}
+        onBekreft={opprettAnlegg}
+        bekreftTekst={t('anlegg.modalBekreft')}
+      >
+        <input type="text" placeholder={t('anlegg.modalNavn')} value={nyttNavn} onChange={(e) => setNyttNavn(e.target.value)} />
+        <select value={nyStatus} onChange={(e) => setNyStatus(e.target.value)}>
+          <option value="Nytt anlegg">Nytt anlegg</option>
+          <option value="Under arbeid">Under arbeid</option>
+          <option value="Til kontroll">Til kontroll</option>
+          <option value="Ferdig">Ferdig</option>
+          <option value="Til utbedring">Til utbedring</option>
+        </select>
+      </BekreftModal>
     </div>
   );
 }
