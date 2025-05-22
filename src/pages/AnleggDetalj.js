@@ -177,25 +177,30 @@ function AnleggDetalj() {
         {/* TILBAKE-KNAPP */}
 <div style={{ marginTop: '30px' }}>
   <button
-onClick={async () => {
-  if (anlegg.anleggsnummer.toString().includes('-')) {
-    const hovednummer = anlegg.anleggsnummer.toString().split('-')[0];
-    const q = query(
-  collection(db, 'anlegg'),
-  where('anleggsnummer', '==', hovednummer.toString())
-);
-    const result = await getDocs(q);
-    if (!result.empty) {
-      const hovedAnleggId = result.docs[0].id;
-      setAnlegg(null); // 🔁 Tøm nåværende visning
-      navigate(`/anlegg/${hovedAnleggId}`);
-    } else {
-      navigate('/anlegg');
-    }
-  } else {
-    navigate('/anlegg');
-  }
-}}
+    onClick={async () => {
+      const nåværendeNr = anlegg.anleggsnummer.toString();
+      if (nåværendeNr.includes('-')) {
+        const hovednummer = nåværendeNr.split('-')[0];
+        try {
+          const snapshot = await getDocs(collection(db, 'anlegg'));
+          const hoved = snapshot.docs.find(doc => {
+            const data = doc.data();
+            return data.anleggsnummer?.toString() === hovednummer;
+          });
+          if (hoved) {
+            setAnlegg(null); // Tøm først
+            navigate(`/anlegg/${hoved.id}`);
+          } else {
+            navigate('/anlegg');
+          }
+        } catch (e) {
+          console.error('Feil ved henting av hovedanlegg:', e);
+          navigate('/anlegg');
+        }
+      } else {
+        navigate('/anlegg');
+      }
+    }}
     style={{
       backgroundColor: '#888',
       color: 'white',
@@ -207,6 +212,7 @@ onClick={async () => {
     ⬅️ {t('knapp.tilbake')}
   </button>
 </div>
+
 
       </div>
 
