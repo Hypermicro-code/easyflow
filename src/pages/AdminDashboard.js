@@ -1,10 +1,11 @@
-// AdminDashboard.js – med forbedret listevisning
+// AdminDashboard.js – forbedret visning med telefon og modal for opprettelse
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { db } from '../firebase';
 import { addDoc, collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
+import BekreftModal from '../components/BekreftModal';
 
 const secondaryAppConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -19,6 +20,7 @@ function AdminDashboard() {
   const { t } = useTranslation();
   const [brukere, setBrukere] = useState([]);
   const [status, setStatus] = useState('');
+  const [visModal, setVisModal] = useState(false);
   const [nyBruker, setNyBruker] = useState({
     epost: '',
     rolle: 'felt',
@@ -47,6 +49,7 @@ function AdminDashboard() {
       await addDoc(collection(db, 'brukere'), nyData);
       setStatus(`✅ Bruker opprettet. Midlertidig passord: ${passord}`);
       setNyBruker({ epost: '', rolle: 'felt', fornavn: '', etternavn: '', telefon: '', ansattnummer: '' });
+      setVisModal(false);
     } catch (err) {
       console.error(err);
       setStatus('❌ Feil ved opprettelse: ' + err.message);
@@ -71,32 +74,22 @@ function AdminDashboard() {
     <div style={{ padding: '20px' }}>
       <h2>👑 Adminpanel</h2>
 
-      <h4>➕ Legg til bruker</h4>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxWidth: '300px' }}>
-        <input type="email" placeholder="E-post" value={nyBruker.epost} onChange={(e) => handleChange('epost', e.target.value)} />
-        <input type="text" placeholder="Fornavn" value={nyBruker.fornavn} onChange={(e) => handleChange('fornavn', e.target.value)} />
-        <input type="text" placeholder="Etternavn" value={nyBruker.etternavn} onChange={(e) => handleChange('etternavn', e.target.value)} />
-        <input type="text" placeholder="Telefon" value={nyBruker.telefon} onChange={(e) => handleChange('telefon', e.target.value)} />
-        <input type="text" placeholder="Ansattnummer" value={nyBruker.ansattnummer} onChange={(e) => handleChange('ansattnummer', e.target.value)} />
-        <select value={nyBruker.rolle} onChange={(e) => handleChange('rolle', e.target.value)}>
-          <option value="kontor">Kontor</option>
-          <option value="felt">Felt</option>
-        </select>
-        <button onClick={leggTilBruker}>Opprett</button>
-        <p>{status}</p>
-      </div>
+      <button onClick={() => setVisModal(true)} style={{ marginBottom: '20px' }}>➕ Legg til bruker</button>
+      {status && <p>{status}</p>}
 
       <h4>👥 Eksisterende brukere</h4>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr 1fr', fontWeight: 'bold', background: '#eee', padding: '10px', borderRadius: '10px 10px 0 0', position: 'sticky', top: 0, zIndex: 1 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr 2fr 1fr', fontWeight: 'bold', background: '#eee', padding: '10px', borderRadius: '10px 10px 0 0', position: 'sticky', top: 0, zIndex: 1 }}>
         <div>Ansattnr</div>
         <div>Navn</div>
+        <div>Telefon</div>
         <div>E-post</div>
         <div>Rolle</div>
       </div>
       {brukere.map((b, index) => (
-        <div key={index} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr 1fr', alignItems: 'center', gap: '10px', padding: '10px', borderBottom: '1px solid #ddd', background: '#f9f9f9' }}>
+        <div key={index} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr 2fr 1fr', alignItems: 'center', gap: '10px', padding: '10px', borderBottom: '1px solid #ddd', background: '#f9f9f9' }}>
           <div><strong>{b.ansattnummer || '-'}</strong></div>
           <div><strong>{b.fornavn || ''} {b.etternavn || ''}</strong></div>
+          <div>{b.telefon || '-'}</div>
           <div>{b.epost}</div>
           <div>
             <select value={b.rolle || 'felt'} onChange={(e) => oppdaterRolle(b.id, e.target.value)}>
@@ -107,6 +100,24 @@ function AdminDashboard() {
           </div>
         </div>
       ))}
+
+      <BekreftModal
+        vis={visModal}
+        tittel="Opprett ny bruker"
+        onLukk={() => setVisModal(false)}
+        onBekreft={leggTilBruker}
+        bekreftTekst="Opprett"
+      >
+        <input type="email" placeholder="E-post" value={nyBruker.epost} onChange={(e) => handleChange('epost', e.target.value)} />
+        <input type="text" placeholder="Fornavn" value={nyBruker.fornavn} onChange={(e) => handleChange('fornavn', e.target.value)} />
+        <input type="text" placeholder="Etternavn" value={nyBruker.etternavn} onChange={(e) => handleChange('etternavn', e.target.value)} />
+        <input type="text" placeholder="Telefon" value={nyBruker.telefon} onChange={(e) => handleChange('telefon', e.target.value)} />
+        <input type="text" placeholder="Ansattnummer" value={nyBruker.ansattnummer} onChange={(e) => handleChange('ansattnummer', e.target.value)} />
+        <select value={nyBruker.rolle} onChange={(e) => handleChange('rolle', e.target.value)}>
+          <option value="kontor">Kontor</option>
+          <option value="felt">Felt</option>
+        </select>
+      </BekreftModal>
     </div>
   );
 }
