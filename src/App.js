@@ -1,8 +1,4 @@
-// Endringer for å integrere AdminDashboard
-// 1. Legg til ny route i App.js
-// 2. Beskytt siden slik at bare admin-brukere får tilgang
-// 3. Hent rolle fra Firestore
-
+// Endringer for å integrere AdminDashboard og opprette admin automatisk første gang
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import Anlegg from './pages/Anlegg';
@@ -17,7 +13,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import { auth, db } from './firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
-import { doc, getDocs, collection } from 'firebase/firestore';
+import { doc, getDocs, collection, addDoc, query, where } from 'firebase/firestore';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -32,7 +28,17 @@ function App() {
       if (currentUser) {
         const snapshot = await getDocs(collection(db, 'brukere'));
         const bruker = snapshot.docs.find(doc => doc.data().uid === currentUser.uid);
-        setRolle(bruker?.data().rolle || 'felt');
+
+        if (!bruker) {
+          await addDoc(collection(db, 'brukere'), {
+            uid: currentUser.uid,
+            epost: currentUser.email,
+            rolle: 'admin' // 🚀 kun første gang du logger inn
+          });
+          setRolle('admin');
+        } else {
+          setRolle(bruker.data().rolle || 'felt');
+        }
       }
       setLoading(false);
     });
