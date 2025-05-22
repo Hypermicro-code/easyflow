@@ -62,7 +62,8 @@ export default {
   },
    knapp: {
   avbryt: 'Cancel',
-  opprett: 'Create'
+  opprett: 'Create',
+  tilbake: 'Back'
 },
   nyMelding: {
     tittel: 'New message',
