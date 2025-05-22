@@ -19,7 +19,7 @@ function Anlegg() {
       const q = query(collection(db, 'anlegg'), orderBy('anleggsnummer', 'desc'));
       const querySnapshot = await getDocs(q);
       const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setAnlegg(data.filter(a => !a.arkivert));
+      setAnlegg(data.filter(a => !a.arkivert && !a.anleggsnummer.toString().includes('-')));
     };
     hentAnlegg();
   }, []);
@@ -44,14 +44,14 @@ function Anlegg() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>{t('anlegg.oversikt')}</h2>
-      <button onClick={() => setVisModal(true)} style={{ marginBottom: '20px' }}>➕ {t('anlegg.opprettNytt')}</button>
+      <h2>Oversikt over anlegg</h2>
+      <button onClick={() => setVisModal(true)} style={{ marginBottom: '20px' }}>➕ Opprett nytt anlegg</button>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr 1fr', fontWeight: 'bold', background: '#eee', padding: '10px', borderRadius: '10px 10px 0 0' }}>
-        <div>{t('anlegg.anleggsnummer')}</div>
-        <div>{t('anlegg.opprettet')}</div>
-        <div>{t('anlegg.navn')}</div>
-        <div>{t('anlegg.status')}</div>
+        <div>Anlegg</div>
+        <div>Opprettet</div>
+        <div>Navn</div>
+        <div>Status</div>
       </div>
       {anlegg.map((a) => (
         <div
@@ -67,12 +67,13 @@ function Anlegg() {
 
       <BekreftModal
         vis={visModal}
-        tittel={t('anlegg.modalTittel')}
+        tittel="Opprett nytt anlegg"
         onLukk={() => setVisModal(false)}
         onBekreft={opprettAnlegg}
-        bekreftTekst={t('anlegg.modalBekreft')}
+        bekreftTekst="Opprett"
+        avbrytTekst="Avbryt"
       >
-        <input type="text" placeholder={t('anlegg.modalNavn')} value={nyttNavn} onChange={(e) => setNyttNavn(e.target.value)} />
+        <input type="text" placeholder="Angi anleggsnavn" value={nyttNavn} onChange={(e) => setNyttNavn(e.target.value)} />
         <select value={nyStatus} onChange={(e) => setNyStatus(e.target.value)}>
           <option value="Nytt anlegg">Nytt anlegg</option>
           <option value="Under arbeid">Under arbeid</option>
