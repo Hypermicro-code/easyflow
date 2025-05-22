@@ -180,7 +180,10 @@ function AnleggDetalj() {
 onClick={async () => {
   if (anlegg.anleggsnummer.toString().includes('-')) {
     const hovednummer = anlegg.anleggsnummer.toString().split('-')[0];
-    const q = query(collection(db, 'anlegg'), where('anleggsnummer', '==', hovednummer));
+    const q = query(
+  collection(db, 'anlegg'),
+  where('anleggsnummer', '==', hovednummer.toString())
+);
     const result = await getDocs(q);
     if (!result.empty) {
       const hovedAnleggId = result.docs[0].id;
