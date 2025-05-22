@@ -266,7 +266,6 @@ function AnleggDetalj() {
           setVisNavnModal(false);
           opprettUnderanlegg(navn);
         }}
-      />
   );
 }
 
