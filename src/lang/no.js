@@ -63,7 +63,8 @@ export default {
 knapp: {
   avbryt: 'Avbryt',
   opprett: 'Opprett',
-  tilbake: 'Tilbake'
+  tilbake: 'Tilbake',
+  loggUt: 'Logg ut'
 },
   nyMelding: {
     tittel: 'Ny melding',
@@ -108,5 +109,12 @@ knapp: {
     bildeSletting: 'Feil ved sletting av bilde',
     offlineLagret: 'Ingen dekning – lagret lokalt',
     anleggIkkeFunnet: 'Anlegg ikke funnet',
-  }
+  },
+  nav: {
+  hjem: 'Hjem',
+  anlegg: 'Anlegg',
+  nyMelding: 'Ny melding',
+  meldinger: 'Meldinger',
+  offlineKo: 'Offline-kø'
+}
 };
