@@ -171,15 +171,22 @@ function AnleggDetalj() {
           </>
         )}
 
-        <div style={{ marginTop: '30px' }}>
-          <button onClick={() => {
-            setSletteType('anlegg');
-            setVisModal(true);
-          }} style={{ backgroundColor: '#f44336', color: 'white' }}>
-            🗑️ {t('anleggDetalj.slett')}
-          </button>
-        </div>
-      </div>
+<div style={{ marginTop: '30px' }}>
+  <button
+    onClick={() => {
+      if (anlegg.anleggsnummer.toString().includes('-')) {
+        const hovedId = anlegg.anleggsnummer.split('-')[0];
+        // Finn hovedanlegg og naviger til det
+        navigate('/anlegg'); // fallback hvis vi ikke finner noe
+      } else {
+        navigate('/anlegg');
+      }
+    }}
+    style={{ backgroundColor: '#888', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '5px' }}
+  >
+    ⬅️ {t('knapp.tilbake')}
+  </button>
+</div>
 
       <div style={{ flex: 1, maxHeight: '80vh', overflowY: 'auto' }}>
         <h3>{t('anleggDetalj.bilder')}</h3>
