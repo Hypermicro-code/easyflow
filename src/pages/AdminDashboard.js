@@ -1,4 +1,4 @@
-// AdminDashboard.js med synkronisert liste og fallback-støtte
+// AdminDashboard.js – med forbedret listevisning
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
@@ -72,28 +72,39 @@ function AdminDashboard() {
       <h2>👑 Adminpanel</h2>
 
       <h4>➕ Legg til bruker</h4>
-      <input type="email" placeholder="E-post" value={nyBruker.epost} onChange={(e) => handleChange('epost', e.target.value)} />
-      <input type="text" placeholder="Fornavn" value={nyBruker.fornavn} onChange={(e) => handleChange('fornavn', e.target.value)} />
-      <input type="text" placeholder="Etternavn" value={nyBruker.etternavn} onChange={(e) => handleChange('etternavn', e.target.value)} />
-      <input type="text" placeholder="Telefon" value={nyBruker.telefon} onChange={(e) => handleChange('telefon', e.target.value)} />
-      <input type="text" placeholder="Ansattnummer" value={nyBruker.ansattnummer} onChange={(e) => handleChange('ansattnummer', e.target.value)} />
-      <select value={nyBruker.rolle} onChange={(e) => handleChange('rolle', e.target.value)}>
-        <option value="kontor">Kontor</option>
-        <option value="felt">Felt</option>
-      </select>
-      <button onClick={leggTilBruker}>Opprett</button>
-      <p>{status}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px', maxWidth: '300px' }}>
+        <input type="email" placeholder="E-post" value={nyBruker.epost} onChange={(e) => handleChange('epost', e.target.value)} />
+        <input type="text" placeholder="Fornavn" value={nyBruker.fornavn} onChange={(e) => handleChange('fornavn', e.target.value)} />
+        <input type="text" placeholder="Etternavn" value={nyBruker.etternavn} onChange={(e) => handleChange('etternavn', e.target.value)} />
+        <input type="text" placeholder="Telefon" value={nyBruker.telefon} onChange={(e) => handleChange('telefon', e.target.value)} />
+        <input type="text" placeholder="Ansattnummer" value={nyBruker.ansattnummer} onChange={(e) => handleChange('ansattnummer', e.target.value)} />
+        <select value={nyBruker.rolle} onChange={(e) => handleChange('rolle', e.target.value)}>
+          <option value="kontor">Kontor</option>
+          <option value="felt">Felt</option>
+        </select>
+        <button onClick={leggTilBruker}>Opprett</button>
+        <p>{status}</p>
+      </div>
 
       <h4>👥 Eksisterende brukere</h4>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr 1fr', fontWeight: 'bold', background: '#eee', padding: '10px', borderRadius: '10px 10px 0 0', position: 'sticky', top: 0, zIndex: 1 }}>
+        <div>Ansattnr</div>
+        <div>Navn</div>
+        <div>E-post</div>
+        <div>Rolle</div>
+      </div>
       {brukere.map((b, index) => (
-        <div key={index} style={{ marginBottom: '10px' }}>
-          <strong>{b.fornavn || ''} {b.etternavn || ''}</strong> – {b.epost}<br />
-          <em>Telefon:</em> {b.telefon || '-'} | <em>Ansatt:</em> {b.ansattnummer || '-'}<br />
-          <select value={b.rolle || 'felt'} onChange={(e) => oppdaterRolle(b.id, e.target.value)}>
-            <option value="kontor">Kontor</option>
-            <option value="felt">Felt</option>
-            <option value="admin">Admin</option>
-          </select>
+        <div key={index} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr 1fr', alignItems: 'center', gap: '10px', padding: '10px', borderBottom: '1px solid #ddd', background: '#f9f9f9' }}>
+          <div><strong>{b.ansattnummer || '-'}</strong></div>
+          <div><strong>{b.fornavn || ''} {b.etternavn || ''}</strong></div>
+          <div>{b.epost}</div>
+          <div>
+            <select value={b.rolle || 'felt'} onChange={(e) => oppdaterRolle(b.id, e.target.value)}>
+              <option value="kontor">Kontor</option>
+              <option value="felt">Felt</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
         </div>
       ))}
     </div>
