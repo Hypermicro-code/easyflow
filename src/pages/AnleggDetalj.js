@@ -267,7 +267,6 @@ function AnleggDetalj() {
           opprettUnderanlegg(navn);
         }}
       />
-    </div>
   );
 }
 
