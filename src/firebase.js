@@ -2,6 +2,7 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { getAuth } from 'firebase/auth';
 
 // Lim inn din egen Firebase-konfigurasjon her:
 const firebaseConfig = {
@@ -16,5 +17,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
-
+// 📦 Eksporter tjenestene du bruker
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export const auth = getAuth(app);
 export { db, storage };
