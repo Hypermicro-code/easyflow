@@ -177,22 +177,22 @@ function AnleggDetalj() {
         {/* TILBAKE-KNAPP */}
 <div style={{ marginTop: '30px' }}>
   <button
-    onClick={async () => {
-      if (anlegg.anleggsnummer.toString().includes('-')) {
-        // Vi er i et underanlegg – finn hovedanleggets ID
-        const hovednummer = anlegg.anleggsnummer.toString().split('-')[0];
-        const q = query(collection(db, 'anlegg'), where('anleggsnummer', '==', hovednummer));
-        const result = await getDocs(q);
-        if (!result.empty) {
-          const hovedAnleggId = result.docs[0].id;
-          navigate(`/anlegg/${hovedAnleggId}`);
-        } else {
-          navigate('/anlegg'); // fallback
-        }
-      } else {
-        navigate('/anlegg');
-      }
-    }}
+onClick={async () => {
+  if (anlegg.anleggsnummer.toString().includes('-')) {
+    const hovednummer = anlegg.anleggsnummer.toString().split('-')[0];
+    const q = query(collection(db, 'anlegg'), where('anleggsnummer', '==', hovednummer));
+    const result = await getDocs(q);
+    if (!result.empty) {
+      const hovedAnleggId = result.docs[0].id;
+      setAnlegg(null); // 🔁 Tøm nåværende visning
+      navigate(`/anlegg/${hovedAnleggId}`);
+    } else {
+      navigate('/anlegg');
+    }
+  } else {
+    navigate('/anlegg');
+  }
+}}
     style={{
       backgroundColor: '#888',
       color: 'white',
