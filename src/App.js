@@ -1,5 +1,10 @@
+// Endringer for å integrere AdminDashboard
+// 1. Legg til ny route i App.js
+// 2. Beskytt siden slik at bare admin-brukere får tilgang
+// 3. Hent rolle fra Firestore
+
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, Link, useLocation } from 'react-router-dom';
+import { Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import Anlegg from './pages/Anlegg';
 import AnleggDetalj from './pages/AnleggDetalj';
 import NyttAnlegg from './pages/NyttAnlegg';
@@ -8,19 +13,27 @@ import Meldinger from './pages/Meldinger';
 import OfflineKo from './pages/OfflineKo';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import { auth } from './firebase';
+import AdminDashboard from './pages/AdminDashboard';
+import { auth, db } from './firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
+import { doc, getDocs, collection } from 'firebase/firestore';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [rolle, setRolle] = useState(null);
   const [loading, setLoading] = useState(true);
   const { i18n, t } = useTranslation();
   const location = useLocation();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        const snapshot = await getDocs(collection(db, 'brukere'));
+        const bruker = snapshot.docs.find(doc => doc.data().uid === currentUser.uid);
+        setRolle(bruker?.data().rolle || 'felt');
+      }
       setLoading(false);
     });
     return () => unsubscribe();
@@ -30,18 +43,13 @@ function App() {
     signOut(auth);
   };
 
-  const handleSpråk = (e) => {
+  const handleSprak = (e) => {
     i18n.changeLanguage(e.target.value);
-    localStorage.setItem('språk', e.target.value);
+    localStorage.setItem('sprak', e.target.value);
   };
 
-  if (loading) {
-    return <div style={{ padding: '30px' }}>⏳ Laster inn...</div>;
-  }
-
-  if (!user) {
-    return <Login />;
-  }
+  if (loading) return <div style={{ padding: '30px' }}>Laster inn...</div>;
+  if (!user) return <Login />;
 
   return (
     <div>
@@ -53,9 +61,10 @@ function App() {
             <Link to="/ny-melding">{t('nav.nyMelding')}</Link>
             <Link to="/meldinger">{t('nav.meldinger')}</Link>
             <Link to="/offline">{t('nav.offlineKo')}</Link>
+            {rolle === 'admin' && <Link to="/admin">Admin</Link>}
           </div>
           <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-            <select onChange={handleSpråk} value={i18n.language}>
+            <select onChange={handleSprak} value={i18n.language}>
               <option value="no">Norsk</option>
               <option value="en">English</option>
             </select>
@@ -72,6 +81,10 @@ function App() {
         <Route path="/ny-melding" element={<NyMelding />} />
         <Route path="/meldinger" element={<Meldinger />} />
         <Route path="/offline" element={<OfflineKo />} />
+        <Route
+          path="/admin"
+          element={rolle === 'admin' ? <AdminDashboard /> : <Navigate to="/" replace />}
+        />
       </Routes>
     </div>
   );
