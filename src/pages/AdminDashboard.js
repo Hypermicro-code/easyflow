@@ -29,12 +29,13 @@ function AdminDashboard() {
     ansattnummer: ''
   });
 
+  const hentBrukere = async () => {
+    const snapshot = await getDocs(collection(db, 'brukere'));
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setBrukere(data);
+  };
+
   useEffect(() => {
-    const hentBrukere = async () => {
-      const snapshot = await getDocs(collection(db, 'brukere'));
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setBrukere(data);
-    };
     hentBrukere();
   }, []);
 
@@ -48,7 +49,8 @@ function AdminDashboard() {
       const nyData = { uid, ...nyBruker };
       await addDoc(collection(db, 'brukere'), nyData);
       setStatus(`✅ Bruker opprettet. Midlertidig passord: ${passord}`);
-      setBrukere(prev => [...prev, nyData]);
+      setNyBruker({ epost: '', rolle: 'felt', fornavn: '', etternavn: '', telefon: '', ansattnummer: '' });
+      await hentBrukere();
     } catch (err) {
       console.error(err);
       setStatus('❌ Feil ved opprettelse: ' + err.message);
@@ -90,9 +92,9 @@ function AdminDashboard() {
       <h4>👥 Eksisterende brukere</h4>
       {brukere.map((b, index) => (
         <div key={index} style={{ marginBottom: '10px' }}>
-          <strong>{b.fornavn} {b.etternavn}</strong> – {b.epost}<br />
-          <em>Telefon:</em> {b.telefon} | <em>Ansatt:</em> {b.ansattnummer}<br />
-          <select value={b.rolle} onChange={(e) => oppdaterRolle(b.id, e.target.value)}>
+          <strong>{b.fornavn || ''} {b.etternavn || ''}</strong> – {b.epost}<br />
+          <em>Telefon:</em> {b.telefon || '-'} | <em>Ansatt:</em> {b.ansattnummer || '-'}<br />
+          <select value={b.rolle || 'felt'} onChange={(e) => oppdaterRolle(b.id, e.target.value)}>
             <option value="kontor">Kontor</option>
             <option value="felt">Felt</option>
             <option value="admin">Admin</option>
