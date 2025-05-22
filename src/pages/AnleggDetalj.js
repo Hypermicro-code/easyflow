@@ -103,11 +103,13 @@ function AnleggDetalj() {
         <h1>{t('anleggDetalj.tittel')} {statusEmoji(status, erArkivert)}</h1>
 
         <div><strong>{t('anleggDetalj.anleggsnummer')}:</strong> {anlegg.anleggsnummer}</div>
-        <div><strong>{t('anleggDetalj.navn')}:</strong> {anlegg.navn}</div>
-        <div><strong>{t('anleggDetalj.opprettet')}:</strong> {new Date(anlegg.opprettet).toLocaleString()}</div>
-                                {!anlegg.anleggsnummer.toString().includes('-') && (
+
+        {!anlegg.anleggsnummer.toString().includes('-') && (
           <UnderAnleggBobler hovednummer={anlegg.anleggsnummer} gjeldendeId={anlegg.id} />
         )}
+
+        <div><strong>{t('anleggDetalj.navn')}:</strong> {anlegg.navn}</div>
+        <div><strong>{t('anleggDetalj.opprettet')}:</strong> {new Date(anlegg.opprettet).toLocaleString()}</div>
 
         <br />
         <label>{t('anleggDetalj.status')}:</label><br />
@@ -171,22 +173,28 @@ function AnleggDetalj() {
           </>
         )}
 
-<div style={{ marginTop: '30px' }}>
-  <button
-    onClick={() => {
-      if (anlegg.anleggsnummer.toString().includes('-')) {
-        const hovedId = anlegg.anleggsnummer.split('-')[0];
-        // Finn hovedanlegg og naviger til det
-        navigate('/anlegg'); // fallback hvis vi ikke finner noe
-      } else {
-        navigate('/anlegg');
-      }
-    }}
-    style={{ backgroundColor: '#888', color: 'white', padding: '8px 14px', border: 'none', borderRadius: '5px' }}
-  >
-    ⬅️ {t('knapp.tilbake')}
-  </button>
-</div>
+        {/* TILBAKE-KNAPP */}
+        <div style={{ marginTop: '30px' }}>
+          <button
+            onClick={() => {
+              if (anlegg.anleggsnummer.toString().includes('-')) {
+                navigate('/anlegg'); // Eller hent hovedanlegg senere
+              } else {
+                navigate('/anlegg');
+              }
+            }}
+            style={{
+              backgroundColor: '#888',
+              color: 'white',
+              padding: '8px 14px',
+              border: 'none',
+              borderRadius: '5px'
+            }}
+          >
+            ⬅️ {t('knapp.tilbake')}
+          </button>
+        </div>
+      </div>
 
       <div style={{ flex: 1, maxHeight: '80vh', overflowY: 'auto' }}>
         <h3>{t('anleggDetalj.bilder')}</h3>
@@ -236,7 +244,7 @@ function AnleggDetalj() {
 
       <BekreftModal
         vis={visModal}
-        melding={sletteType === 'bilde' ? t('anleggDetalj.bekreftBildeSlett') : t('anleggDetalj.bekreftAnleggSlett')}
+        melding={sletteType === 'bilde' ? t('anleggDetalj.bekreftBildeSlett') : ''}
         onBekreft={async () => {
           if (sletteType === 'bilde') {
             const refToDel = ref(storage, bildeSomSkalSlettes);
@@ -245,10 +253,6 @@ function AnleggDetalj() {
             await updateDoc(doc(db, 'anlegg', id), { bilder: nyeBilder });
             setBilder(nyeBilder);
             setToast(t('anleggDetalj.bildeSlettet'));
-          } else {
-            await deleteDoc(doc(db, 'anlegg', id));
-            setToast(t('anleggDetalj.slettet'));
-            navigate('/anlegg');
           }
           setVisModal(false);
         }}
@@ -266,6 +270,8 @@ function AnleggDetalj() {
           setVisNavnModal(false);
           opprettUnderanlegg(navn);
         }}
+      />
+    </div>
   );
 }
 
