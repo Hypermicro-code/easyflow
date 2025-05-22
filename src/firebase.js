@@ -9,9 +9,9 @@ const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: process.env.REACT_APP_FIREBASE_API_KEY,
   projectId: process.env.REACT_APP_FIREBASE_API_KEY,
-  storageBucket: "easyflow-95b3e.firebasestorage.app",
-  messagingSenderId: "821871316593",
-  appId: "1:821871316593:web:caaead49048be3b00f95d0"
+  storageBucket: process.env.REACT_APP_FIREBASE_API_KEY,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_API_KEY,
+  appId: process.env.REACT_APP_FIREBASE_API_KEY,
 };
 
 const app = initializeApp(firebaseConfig);
