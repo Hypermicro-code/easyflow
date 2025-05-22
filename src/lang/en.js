@@ -63,7 +63,8 @@ export default {
    knapp: {
   avbryt: 'Cancel',
   opprett: 'Create',
-  tilbake: 'Back'
+  tilbake: 'Back',
+  loggUt: 'Log out' 
 },
   nyMelding: {
     tittel: 'New message',
@@ -108,6 +109,13 @@ export default {
     bildeSletting: 'Error deleting image',
     offlineLagret: 'Offline – saved locally',
     anleggIkkeFunnet: 'Site not found',
-  }
+  },
+  nav: {
+  hjem: 'Home',
+  anlegg: 'Projects',
+  nyMelding: 'New message',
+  meldinger: 'Messages',
+  offlineKo: 'Offline queue'
+}
 
 };
