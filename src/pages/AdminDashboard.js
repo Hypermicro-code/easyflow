@@ -1,12 +1,11 @@
-// AdminDashboard.js med sekundær Firebase-app og ekstra felter
+// AdminDashboard.js med synkronisert liste og fallback-støtte
 import React, { useState, useEffect } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 import { db } from '../firebase';
-import { addDoc, collection, getDocs, doc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
 
-// Sekundær Firebase-app for å unngå at admin logges ut
 const secondaryAppConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
@@ -29,14 +28,12 @@ function AdminDashboard() {
     ansattnummer: ''
   });
 
-  const hentBrukere = async () => {
-    const snapshot = await getDocs(collection(db, 'brukere'));
-    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setBrukere(data);
-  };
-
   useEffect(() => {
-    hentBrukere();
+    const unsubscribe = onSnapshot(collection(db, 'brukere'), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setBrukere(data);
+    });
+    return () => unsubscribe();
   }, []);
 
   const genererPassord = () => Math.random().toString(36).slice(-8);
@@ -50,7 +47,6 @@ function AdminDashboard() {
       await addDoc(collection(db, 'brukere'), nyData);
       setStatus(`✅ Bruker opprettet. Midlertidig passord: ${passord}`);
       setNyBruker({ epost: '', rolle: 'felt', fornavn: '', etternavn: '', telefon: '', ansattnummer: '' });
-      await hentBrukere();
     } catch (err) {
       console.error(err);
       setStatus('❌ Feil ved opprettelse: ' + err.message);
@@ -61,7 +57,6 @@ function AdminDashboard() {
     try {
       const brukerRef = doc(db, 'brukere', id);
       await updateDoc(brukerRef, { rolle: nyRolle });
-      setBrukere(brukere.map(b => b.id === id ? { ...b, rolle: nyRolle } : b));
       setStatus('✅ Rolle oppdatert');
     } catch (err) {
       setStatus('❌ Klarte ikke å oppdatere rolle');
