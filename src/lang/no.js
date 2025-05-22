@@ -62,7 +62,8 @@ export default {
 },
 knapp: {
   avbryt: 'Avbryt',
-  opprett: 'Opprett'
+  opprett: 'Opprett',
+  tilbake: 'Tilbake'
 },
   nyMelding: {
     tittel: 'Ny melding',
