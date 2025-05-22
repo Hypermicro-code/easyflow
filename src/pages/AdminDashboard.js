@@ -10,7 +10,7 @@ import OfflineKo from './pages/OfflineKo';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
-import { auth, db } from './firebase';
+import { auth, db } from '../firebase';
 import { signOut, onAuthStateChanged, getAuth } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
 import { doc, getDocs, collection, addDoc, query, where } from 'firebase/firestore';
