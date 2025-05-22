@@ -15,8 +15,7 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const storage = getStorage(app);
+
 // 📦 Eksporter tjenestene du bruker
 export const db = getFirestore(app);
 export const storage = getStorage(app);
