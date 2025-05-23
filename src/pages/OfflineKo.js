@@ -1,97 +1,101 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import Toast from '../components/Toast';
 import BekreftModal from '../components/BekreftModal';
-import { useTranslation } from 'react-i18next';
 
 function OfflineKo() {
-  const { t } = useTranslation();
-  const [meldinger, setMeldinger] = useState([]);
-  const [anlegg, setAnlegg] = useState([]);
+  const [meldingsKø, setMeldingsKø] = useState([]);
+  const [anleggsKø, setAnleggsKø] = useState([]);
   const [toast, setToast] = useState('');
   const [visModal, setVisModal] = useState(false);
-  const [sletteInfo, setSletteInfo] = useState(null);
+  const [elementType, setElementType] = useState('');
+  const [elementIndex, setElementIndex] = useState(null);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const m = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
-    const a = JSON.parse(localStorage.getItem('offlineAnlegg')) || [];
-    setMeldinger(m);
-    setAnlegg(a);
-  }, []);
+    const meldinger = JSON.parse(localStorage.getItem('offlineMeldinger')) || [];
+    const anlegg = JSON.parse(localStorage.getItem('offlineAnlegg')) || [];
+    setMeldingsKø(meldinger);
+    setAnleggsKø(anlegg);
+  }, [toast]);
 
-  const slettFraKø = (type, index) => {
-    const oppdatert = [...(type === 'melding' ? meldinger : anlegg)];
-    oppdatert.splice(index, 1);
-    if (type === 'melding') {
-      localStorage.setItem('offlineMeldinger', JSON.stringify(oppdatert));
-      setMeldinger(oppdatert);
-    } else {
-      localStorage.setItem('offlineAnlegg', JSON.stringify(oppdatert));
-      setAnlegg(oppdatert);
+  const bekreftSlett = (type, index) => {
+    setElementType(type);
+    setElementIndex(index);
+    setVisModal(true);
+  };
+
+  const slettElement = () => {
+    if (elementType === 'melding') {
+      const nyListe = [...meldingsKø];
+      nyListe.splice(elementIndex, 1);
+      localStorage.setItem('offlineMeldinger', JSON.stringify(nyListe));
+      setMeldingsKø(nyListe);
+    } else if (elementType === 'anlegg') {
+      const nyListe = [...anleggsKø];
+      nyListe.splice(elementIndex, 1);
+      localStorage.setItem('offlineAnlegg', JSON.stringify(nyListe));
+      setAnleggsKø(nyListe);
     }
     setToast(t('offlineKo.slettet'));
     setVisModal(false);
-    setSletteInfo(null);
   };
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>{t('offlineKo.tittel')}</h1>
 
-      <div style={{ marginBottom: '30px' }}>
-        <h2>{t('offlineKo.anlegg')}</h2>
-        {anlegg.length === 0 ? (
-          <p>{t('offlineKo.ingenAnlegg')}</p>
-        ) : (
-          <ul>
-            {anlegg.map((a, idx) => (
-              <li key={idx}>
-                {a.anleggsnummer} – {a.navn}{' '}
-                <button onClick={() => {
-                  setSletteInfo({ type: 'anlegg', index: idx });
-                  setVisModal(true);
-                }}>
-                  🗑️ {t('offlineKo.slettKnapp')}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+      <div style={{ marginBottom: '10px' }}>
+        <button onClick={() => navigate('/')}>🏠 Hjem</button>
       </div>
 
-      <div>
-        <h2>{t('offlineKo.meldinger')}</h2>
-        {meldinger.length === 0 ? (
-          <p>{t('offlineKo.ingenMeldinger')}</p>
-        ) : (
-          <ul>
-            {meldinger.map((m, idx) => (
-              <li key={idx}>
-                {m.anleggsnummer}: {m.tekst}{' '}
-                <button onClick={() => {
-                  setSletteInfo({ type: 'melding', index: idx });
-                  setVisModal(true);
-                }}>
-                  🗑️ {t('offlineKo.slettKnapp')}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {toast && <Toast message={toast} onClose={() => setToast('')} />}
-
-      {visModal && (
-        <BekreftModal
-          vis={visModal}
-          melding={t('offlineKo.bekreft')}
-          onBekreft={() => slettFraKø(sletteInfo.type, sletteInfo.index)}
-          onAvbryt={() => {
-            setVisModal(false);
-            setSletteInfo(null);
-          }}
-        />
+      {meldingsKø.length > 0 && (
+        <>
+          <h2>{t('offlineKo.meldinger')}</h2>
+          {meldingsKø.map((m, idx) => (
+            <div key={idx} style={{
+              background: '#fffbe6',
+              border: '1px solid #ddd',
+              padding: '10px',
+              marginBottom: '10px',
+              borderRadius: '5px'
+            }}>
+              <strong>{m.anleggsnummer}</strong><br />
+              <p>{m.melding}</p>
+              <button onClick={() => bekreftSlett('melding', idx)}>{t('knapp.slett')}</button>
+            </div>
+          ))}
+        </>
       )}
+
+      {anleggsKø.length > 0 && (
+        <>
+          <h2>{t('offlineKo.anlegg')}</h2>
+          {anleggsKø.map((a, idx) => (
+            <div key={idx} style={{
+              background: '#e6f7ff',
+              border: '1px solid #ccc',
+              padding: '10px',
+              marginBottom: '10px',
+              borderRadius: '5px'
+            }}>
+              <strong>{a.anleggsnummer}</strong><br />
+              <p>{a.navn}</p>
+              <button onClick={() => bekreftSlett('anlegg', idx)}>{t('knapp.slett')}</button>
+            </div>
+          ))}
+        </>
+      )}
+
+      {toast && <Toast melding={toast} onClose={() => setToast('')} />}
+      <BekreftModal
+        vis={visModal}
+        melding={t('offlineKo.bekreft')}
+        onBekreft={slettElement}
+        onAvbryt={() => setVisModal(false)}
+      />
     </div>
   );
 }
