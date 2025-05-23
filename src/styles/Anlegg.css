@@ -1,0 +1,54 @@
+.innhold {
+  padding: 20px;
+}
+
+.overskriftRad {
+  display: flex;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.anleggsboble {
+  display: flex;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  text-decoration: none;
+  color: black;
+  transition: background-color 0.2s ease;
+}
+
+.anleggsboble:hover {
+  background-color: #f0f0f0;
+}
+
+.kolonne {
+  padding: 0 10px;
+}
+
+.kolonne.liten {
+  width: 80px;
+}
+
+.kolonne.stor {
+  flex: 1;
+}
+
+.blaKnapp {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-right: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.secondaryKnapp {
+  background-color: #eee;
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+}
