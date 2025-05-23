@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import './App.css';
 import Anlegg from './pages/Anlegg';
 import AnleggDetalj from './pages/AnleggDetalj';
 import NyttAnlegg from './pages/NyttAnlegg';
