@@ -79,7 +79,8 @@ knapp: {
   avbryt: 'Avbryt',
   opprett: 'Opprett',
   tilbake: 'Tilbake',
-  loggUt: 'Logg ut'
+  loggUt: 'Logg ut',
+  slett: 'Slett'
 },
   nyMelding: {
     tittel: 'Ny melding',
