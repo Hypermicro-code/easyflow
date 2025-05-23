@@ -99,6 +99,12 @@ export default {
     slettet: 'Message deleted',
     opprettet: 'Created',
     bekreft: 'Delete message linked to site',
+    oversikt: 'Message overview',
+    kolonne: {
+    melding: 'Message',
+    anleggsnummer: 'Site ID',
+    opprettet: 'Created',
+    aksjon: 'Action'
   },
   offlineKo: {
     tittel: 'Offline queue',
