@@ -6,25 +6,33 @@
   display: flex;
   font-weight: bold;
   margin-bottom: 10px;
+  background-color: #e6f0ff;
+  padding: 10px;
+  border-radius: 8px;
 }
 
 .anleggsboble {
   display: flex;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 10px;
+  align-items: center;
+  border-radius: 8px;
   margin-bottom: 10px;
+  padding: 10px;
+  background-color: #f4faff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   text-decoration: none;
   color: black;
   transition: background-color 0.2s ease;
+  min-height: 45px;
 }
 
 .anleggsboble:hover {
-  background-color: #f0f0f0;
+  background-color: #dceeff;
 }
 
 .kolonne {
   padding: 0 10px;
+  display: flex;
+  align-items: center;
 }
 
 .kolonne.liten {
@@ -35,20 +43,24 @@
   flex: 1;
 }
 
-.blaKnapp {
+.blaKnapp,
+.secondaryKnapp {
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 8px 12px;
-  margin-right: 10px;
-  border-radius: 4px;
+  padding: 8px 16px;
+  border-radius: 6px;
   cursor: pointer;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  font-size: 14px;
 }
 
 .secondaryKnapp {
-  background-color: #eee;
-  border: 1px solid #ccc;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
+  background-color: #5a9df8;
+}
+
+.blaKnapp:hover,
+.secondaryKnapp:hover {
+  background-color: #006ae6;
 }
