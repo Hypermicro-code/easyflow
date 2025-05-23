@@ -140,7 +140,7 @@ export default {
   nyMelding: 'New message',
   meldinger: 'Messages',
   offlineKo: 'Offline queue'
-}
+},
 admin: {
   overskrift: 'List of Employees',
   leggTil: 'Add new employee',
