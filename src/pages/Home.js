@@ -9,7 +9,8 @@ function Home() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { brukerdata, lastet } = useAuth();
-
+  console.log('🔍 Brukerdata:', brukerdata);
+  
   if (!lastet) {
   return <div style={{ textAlign: 'center', marginTop: '50px' }}>{t('laster')}...</div>;
   }
