@@ -153,9 +153,6 @@ admin: {
     handling: 'Action'
   }
 },
-knapp: {
-  slett: 'Delete'
-},
 bekreft: {
   slettBruker: 'Do you really want to delete this user?'
 }
