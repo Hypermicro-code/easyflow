@@ -1,104 +1,74 @@
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import Toast from '../components/Toast';
 import BekreftModal from '../components/BekreftModal';
-import { useTranslation } from 'react-i18next';
 
 function Meldinger() {
-  const { t } = useTranslation();
   const [meldinger, setMeldinger] = useState([]);
   const [toast, setToast] = useState('');
   const [visModal, setVisModal] = useState(false);
-  const [meldingSomSkalSlettes, setMeldingSomSkalSlettes] = useState(null);
+  const [meldingId, setMeldingId] = useState(null);
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const hentMeldinger = async () => {
-    try {
-      const snapshot = await getDocs(collection(db, 'meldinger'));
-      const liste = snapshot.docs.map(doc => ({
+  useEffect(() => {
+    const hentMeldinger = async () => {
+      const querySnapshot = await getDocs(collection(db, 'meldinger'));
+      const liste = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data()
       }));
-      setMeldinger(liste.sort((a, b) => new Date(b.opprettet) - new Date(a.opprettet)));
-    } catch (error) {
-      console.error('Feil ved henting av meldinger:', error);
-    }
+      liste.sort((a, b) => new Date(b.tidspunkt) - new Date(a.tidspunkt));
+      setMeldinger(liste);
+    };
+    hentMeldinger();
+  }, [toast]);
+
+  const bekreftSlett = (id) => {
+    setMeldingId(id);
+    setVisModal(true);
   };
 
-  useEffect(() => {
-    hentMeldinger();
-  }, []);
-
-  const slettMelding = async (id) => {
-    try {
-      await deleteDoc(doc(db, 'meldinger', id));
-      setToast(t('meldinger.slettet'));
-      hentMeldinger();
-    } catch (error) {
-      console.error('Feil ved sletting:', error);
-      setToast(t('feil.sletting'));
-    }
+  const slettMelding = async () => {
+    await deleteDoc(doc(db, 'meldinger', meldingId));
+    setToast(t('meldinger.slettet'));
     setVisModal(false);
-    setMeldingSomSkalSlettes(null);
+    setMeldingId(null);
   };
 
   return (
     <div style={{ padding: '20px' }}>
       <h1>{t('meldinger.tittel')}</h1>
-      {meldinger.length === 0 ? (
-        <p>{t('meldinger.ingen')}</p>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {meldinger.map((m) => (
-            <li key={m.id} style={{
-              marginBottom: '20px',
-              padding: '16px',
-              backgroundColor: '#f9f9f9',
-              borderRadius: '10px',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-            }}>
-              <div><strong>{t('meldinger.anleggsnummer')}:</strong> {m.anleggsnummer}</div>
-              <div><strong>{t('meldinger.melding')}:</strong><br />{m.tekst}</div>
-              <div style={{ fontSize: '0.9em', color: '#666' }}>
-                {m.opprettet && (
-                  <>{t('meldinger.opprettet')}: {new Date(m.opprettet).toLocaleString()}</>
-                )}
-              </div>
-              <button
-                onClick={() => {
-                  setMeldingSomSkalSlettes(m);
-                  setVisModal(true);
-                }}
-                style={{
-                  marginTop: '10px',
-                  backgroundColor: '#f44336',
-                  color: 'white',
-                  padding: '6px 12px',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}
-              >
-                🗑️ {t('meldinger.slettKnapp')}
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
 
-      {toast && <Toast message={toast} onClose={() => setToast('')} />}
+      <div style={{ marginBottom: '10px' }}>
+        <button onClick={() => navigate('/')}>🏠 Hjem</button>
+      </div>
 
-      {visModal && (
-        <BekreftModal
-          vis={visModal}
-          melding={`${t('meldinger.bekreft')} ${meldingSomSkalSlettes?.anleggsnummer}?`}
-          onBekreft={() => slettMelding(meldingSomSkalSlettes.id)}
-          onAvbryt={() => {
-            setVisModal(false);
-            setMeldingSomSkalSlettes(null);
-          }}
-        />
-      )}
+      {meldinger.map((m) => (
+        <div key={m.id} style={{
+          background: '#f9f9f9',
+          border: '1px solid #ddd',
+          padding: '10px',
+          marginBottom: '10px',
+          borderRadius: '5px'
+        }}>
+          <strong>{m.anleggsnummer}</strong><br />
+          <small>{new Date(m.tidspunkt).toLocaleString()}</small>
+          <p>{m.melding}</p>
+          <button onClick={() => bekreftSlett(m.id)}>{t('knapp.slett')}</button>
+        </div>
+      ))}
+
+      {toast && <Toast melding={toast} onClose={() => setToast('')} />}
+      <BekreftModal
+        vis={visModal}
+        melding={t('meldinger.bekreft')}
+        onBekreft={slettMelding}
+        onAvbryt={() => setVisModal(false)}
+      />
     </div>
   );
 }
