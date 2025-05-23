@@ -64,7 +64,6 @@ function App() {
           <div style={{ display: 'flex', gap: '10px' }}>
             <Link to="/">{t('nav.hjem')}</Link>
             <Link to="/anlegg">{t('nav.anlegg')}</Link>
-            <Link to="/nytt-anlegg">{t('nav.nyttAnlegg')}</Link>
             <Link to="/ny-melding">{t('nav.nyMelding')}</Link>
             <Link to="/meldinger">{t('nav.meldinger')}</Link>
             <Link to="/offline">{t('nav.offlineKo')}</Link>
