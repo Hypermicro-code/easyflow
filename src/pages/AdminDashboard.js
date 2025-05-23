@@ -5,7 +5,7 @@ import { db } from '../firebase';
 import { useTranslation } from 'react-i18next';
 import HjemKnapp from '../components/HjemKnapp';
 import NavnModal from '../components/NavnModal';
-import '../styles/App.css';
+import '../App.css';
 
 export default function AdminDashboard() {
   const [brukere, setBrukere] = useState([]);
