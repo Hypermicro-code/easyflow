@@ -80,7 +80,8 @@ export default {
   opprett: 'Create',
   tilbake: 'Back',
   loggUt: 'Log out',
-     slett: 'Delete'
+  slett: 'Delete',
+   hjem: 'Home'
 },
   nyMelding: {
     tittel: 'New message',
@@ -139,9 +140,6 @@ export default {
   nyMelding: 'New message',
   meldinger: 'Messages',
   offlineKo: 'Offline queue'
-},
-knapp: {
-  hjem: 'Home',
-  slett: 'Delete'
 }
+
 };
