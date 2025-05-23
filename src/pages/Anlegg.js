@@ -75,30 +75,27 @@ export default function Anlegg() {
       </button>
 
       <div className="overskriftRad">
-        <div className="kolonne liten">{t('anlegg.kolonne.anlegg')}</div>
-        <div className="kolonne liten">{t('anlegg.kolonne.opprettet')}</div>
-        <div className="kolonne stor">{t('anlegg.kolonne.navn')}</div>
-        <div className="kolonne liten">{t('anlegg.kolonne.status')}</div>
-      </div>
+      <div className="kolonne liten">{t('anlegg.kolonne.status')}</div>
+      <div className="kolonne liten">{t('anlegg.kolonne.anlegg')}</div>
+      <div className="kolonne liten">{t('anlegg.kolonne.opprettet')}</div>
+      <div className="kolonne stor">{t('anlegg.kolonne.navn')}</div>
+    </div>
 
-      {filtrertAnlegg.map((a) => (
-        <Link to={`/anlegg/${a.id}`} key={a.id} className="anleggsboble">
-          <div className="kolonne liten">
-            <strong>{a.anleggsnummer}</strong>
-          </div>
-          <div className="kolonne liten">
-            {a.opprettet
-              ? new Date(a.opprettet).toLocaleString()
-              : t('anlegg.ukjentDato')}
-          </div>
-          <div className="kolonne stor">
-            <strong>{a.navn}</strong>
-          </div>
-          <div className="kolonne liten">
-            {statusEmoji(a.status, a.arkivert)}
-          </div>
-        </Link>
-      ))}
+{filtrertAnlegg.map((a) => (
+  <Link to={`/anlegg/${a.id}`} key={a.id} className="anleggsboble">
+    <div className="kolonne liten">
+      {statusEmoji(a.status, a.arkivert)}
+    </div>
+    <div className="kolonne liten">
+      <strong>{a.anleggsnummer}</strong>
+    </div>
+    <div className="kolonne liten">{a.opprettet}</div>
+    <div className="kolonne stor">
+      <strong>{a.navn}</strong>
+    </div>
+  </Link>
+))}
+
 
       <OpprettAnleggModal vis={visModal} onLukk={() => setVisModal(false)} />
     </div>
