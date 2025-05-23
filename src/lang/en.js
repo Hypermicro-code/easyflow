@@ -117,5 +117,7 @@ export default {
   meldinger: 'Messages',
   offlineKo: 'Offline queue'
 }
-
+knapp: {
+  hjem: 'Home',
+}
 };
