@@ -11,29 +11,39 @@ export function AuthProvider({ children }) {
   const [brukerdata, setBrukerdata] = useState(null);
   const [lastet, setLastet] = useState(false); // 👈 nytt flagg
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        try {
-          const docRef = doc(db, 'brukere', currentUser.uid);
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
-            setBrukerdata(docSnap.data());
-          } else {
-            setBrukerdata({ rolle: 'ukjent' }); // fallback
-          }
-        } catch (e) {
-          console.error('Feil ved henting av brukerdata:', e);
-        }
-      } else {
-        setBrukerdata(null);
-      }
-      setLastet(true);
-    });
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    setUser(currentUser);
+    if (currentUser) {
+      try {
+        const docRef = doc(db, 'brukere', currentUser.uid);
+        const docSnap = await getDoc(docRef);
 
-    return () => unsubscribe();
-  }, []);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data && data.rolle) {
+            setBrukerdata(data);
+          } else {
+            console.warn('⚠️ Brukerdata mangler rolle, legger til default admin for testing');
+            setBrukerdata({ rolle: 'admin' }); // kun midlertidig hvis du ønsker
+          }
+        } else {
+          console.warn('⚠️ Brukerdokument ikke funnet i Firestore');
+          setBrukerdata({ rolle: 'ukjent' });
+        }
+      } catch (e) {
+        console.error('❌ Feil ved henting av brukerdata:', e);
+        setBrukerdata({ rolle: 'ukjent' });
+      }
+    } else {
+      setBrukerdata(null);
+    }
+    setLastet(true);
+  });
+
+  return () => unsubscribe();
+}, []);
+
 
   return (
     <AuthContext.Provider value={{ user, brukerdata, lastet }}>
