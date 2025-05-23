@@ -80,7 +80,8 @@ knapp: {
   opprett: 'Opprett',
   tilbake: 'Tilbake',
   loggUt: 'Logg ut',
-  slett: 'Slett'
+  slett: 'Slett',
+   hjem: 'Hjem'
 },
   nyMelding: {
     tittel: 'Ny melding',
@@ -139,9 +140,5 @@ knapp: {
   nyMelding: 'Ny melding',
   meldinger: 'Meldinger',
   offlineKo: 'Offline-kø'
-},
-  knapp: {
-  hjem: 'Hjem',
-  slett: 'Slett'
 }
 };
