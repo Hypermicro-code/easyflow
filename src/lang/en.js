@@ -31,7 +31,7 @@ export default {
     arkiverteTittel: 'Archived sites',
     visArkiverte: 'Show archived sites',
     visAktive: 'Show active sites',
-    ingenArkiverte: 'No archived sites available'
+    ingenArkiverte: 'No archived sites available',
     modalTittel: 'Create new project',
     modalNavn: 'Enter project name',
     modalBekreft: 'Create',
