@@ -1,77 +1,83 @@
-.innhold {
-  padding: 20px;
-  max-width: 900px;
-  margin: auto;
-}
+/* src/App.css */
 
-h2 {
-  margin-bottom: 16px;
-  font-size: 1.6rem;
-}
-
-.blaKnapp, .secondaryKnapp, .rodKnapp {
+/* Felles boble-stil for alle lister */
+.bobleliste {
+  display: flex;
+  align-items: center;
+  background-color: #e9f1ff;
   padding: 4px 8px;
-  height: 28px;
-  font-size: 0.9rem;
-  border-radius: 5px;
-  border: none;
-  cursor: pointer;
-  margin-right: 8px;
-}
-
-.blaKnapp {
-  background-color: #007bff;
-  color: white;
-}
-
-.secondaryKnapp {
-  background-color: #ccc;
+  margin-bottom: 6px;
+  border: 1px solid #c7ddff;
+  border-radius: 6px;
+  text-decoration: none;
   color: black;
-}
-
-.rodKnapp {
-  background-color: #d9534f;
-  color: white;
+  height: 28px;
 }
 
 .overskriftRad {
   display: flex;
-  background-color: #e7e7e7;
-  padding: 6px 10px;
   font-weight: bold;
-  margin-top: 10px;
+  background-color: #e9f1ff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-top: 20px;
+  margin-bottom: 8px;
 }
 
 .kolonne {
-  padding: 4px 8px;
-  height: 28px;
-  line-height: 20px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
 }
 
 .kolonne.liten {
-  width: 100px;
+  width: 80px;
+  justify-content: center;
 }
 
 .kolonne.stor {
-  flex: 1;
+  flex-grow: 1;
+  justify-content: flex-start;
 }
 
-.anleggsboble, .meldingboble, .brukerboble {
-  display: flex;
-  align-items: center;
-  margin-top: 6px;
-  padding: 4px 8px;
-  background-color: #f5f5f5;
+/* Knapper */
+.blaKnapp {
+  background-color: #4f95f8;
+  color: white;
+  border: none;
+  padding: 6px 12px;
   border-radius: 6px;
-  text-decoration: none;
-  color: inherit;
-  transition: background 0.2s;
+  margin: 6px 4px 6px 0;
+  cursor: pointer;
 }
 
-.anleggsboble:hover,
-.meldingboble:hover,
-.brukerboble:hover {
-  background-color: #e2e2e2;
+.secondaryKnapp {
+  background-color: #d8e6fd;
+  color: #333;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin: 6px 4px 6px 0;
+  cursor: pointer;
+}
+
+.roedKnapp {
+  background-color: #f87171;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+/* Hjem-knapp spesial */
+.hjemKnapp {
+  background-color: #4f95f8;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  cursor: pointer;
 }
