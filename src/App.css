@@ -1,0 +1,18 @@
+/* Felles boble-stil for alle listede elementer */
+.bobleliste {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  margin-bottom: 8px;
+  background-color: #e6f0ff;
+  border: 1px solid #b3d1ff;
+  border-radius: 8px;
+  text-decoration: none;
+  color: black;
+  min-height: 28px;
+  transition: background-color 0.2s ease;
+}
+
+.bobleliste:hover {
+  background-color: #d0e4ff;
+}
