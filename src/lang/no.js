@@ -99,6 +99,12 @@ knapp: {
     slettet: 'Melding slettet',
     opprettet: 'Opprettet',
     bekreft: 'Slette melding tilknyttet anlegg',
+    oversikt: 'Meldingsoversikt',
+    kolonne: {
+    melding: 'Melding',
+    anleggsnummer: 'Anleggsnr',
+    opprettet: 'Opprettet',
+    aksjon: 'Handling'
   },
   offlineKo: {
     tittel: 'Offline-kø',
