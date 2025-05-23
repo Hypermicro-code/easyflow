@@ -83,7 +83,6 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/anlegg" element={<Anlegg />} />
         <Route path="/anlegg/:id" element={<AnleggDetalj />} />
-        <Route path="/nytt-anlegg" element={<NyttAnlegg />} />
         <Route path="/ny-melding" element={<NyMelding />} />
         <Route path="/meldinger" element={<Meldinger />} />
         <Route path="/offline" element={<OfflineKo />} />
