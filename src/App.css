@@ -16,3 +16,17 @@
 .bobleliste:hover {
   background-color: #d0e4ff;
 }
+.rødKnapp {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+}
+
+.rødKnapp:hover {
+  background-color: #c0392b;
+}
