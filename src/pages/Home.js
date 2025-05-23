@@ -22,8 +22,8 @@ function Home() {
     { label: t('nav.offlineKo'), path: '/offline' },
   ];
 
-  if (brukerdata?.rolle === 'admin') {
-    knapper.push({ label: 'Admin', path: '/admin' });
+if (brukerdata && brukerdata.rolle && brukerdata.rolle.toLowerCase() === 'admin') {
+  knapper.push({ label: 'Admin', path: '/admin' });
   }
 
   return (
