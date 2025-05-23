@@ -32,6 +32,10 @@ export default {
     visArkiverte: 'Show archived sites',
     visAktive: 'Show active sites',
     ingenArkiverte: 'No archived sites available'
+    modalTittel: 'Create new project',
+    modalNavn: 'Enter project name',
+    modalBekreft: 'Create',
+    modalAvbryt: 'Cancel',
   },
   anleggDetalj: {
     tittel: 'Site details',
