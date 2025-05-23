@@ -81,3 +81,39 @@
   margin-bottom: 10px;
   cursor: pointer;
 }
+.ansattOverskrift {
+  margin-top: 20px;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.ansattListe {
+  margin-top: 10px;
+}
+
+.ansattBoble {
+  display: flex;
+  align-items: center;
+  background-color: #e9f1ff;
+  padding: 4px 8px;
+  margin-bottom: 6px;
+  border: 1px solid #c7ddff;
+  border-radius: 6px;
+  height: 28px;
+}
+
+.ansattBoble .kolonne {
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+}
+
+.ansattBoble .kolonne.liten {
+  width: 80px;
+  justify-content: center;
+}
+
+.ansattBoble .kolonne.stor {
+  flex-grow: 1;
+  justify-content: flex-start;
+}
