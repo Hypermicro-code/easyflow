@@ -120,8 +120,8 @@ export default {
   nyMelding: 'New message',
   meldinger: 'Messages',
   offlineKo: 'Offline queue'
-}
+},
 knapp: {
-  hjem: 'Home'
+  hjem: 'Home',
 }
 };
