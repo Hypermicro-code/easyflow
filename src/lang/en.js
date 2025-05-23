@@ -79,7 +79,8 @@ export default {
   avbryt: 'Cancel',
   opprett: 'Create',
   tilbake: 'Back',
-  loggUt: 'Log out' 
+  loggUt: 'Log out',
+     slett: 'Delete'
 },
   nyMelding: {
     tittel: 'New message',
