@@ -22,7 +22,7 @@
   text-decoration: none;
   color: black;
   transition: background-color 0.2s ease;
-  min-height: 32px; /* gir litt polstring men holder det lavt */
+  min-height: 28px; /* gir litt polstring men holder det lavt */
 }
 
 .anleggsboble:hover {
