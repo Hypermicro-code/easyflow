@@ -120,8 +120,8 @@ knapp: {
   nyMelding: 'Ny melding',
   meldinger: 'Meldinger',
   offlineKo: 'Offline-kø'
-}
+},
   knapp: {
   hjem: 'Hjem',
-},
+}
 };
