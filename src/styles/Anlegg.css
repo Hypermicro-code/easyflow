@@ -14,20 +14,21 @@
 .anleggsboble {
   display: flex;
   align-items: center;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  background-color: #e6f0ff;
+  border: 1px solid #b3d1ff;
   border-radius: 8px;
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #f4faff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   text-decoration: none;
   color: black;
   transition: background-color 0.2s ease;
-  min-height: 45px;
+  min-height: 32px; /* gir litt polstring men holder det lavt */
 }
 
 .anleggsboble:hover {
-  background-color: #dceeff;
+  background-color: #d0e4ff;
 }
+
 
 .kolonne {
   padding: 0 10px;
