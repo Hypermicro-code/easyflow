@@ -4,7 +4,7 @@ import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTranslation } from 'react-i18next';
 import HjemKnapp from '../components/HjemKnapp';
-import './App.css';
+import '../App.css';
 
 export default function Meldinger() {
   const [meldinger, setMeldinger] = useState([]);
