@@ -140,6 +140,6 @@ export default {
   offlineKo: 'Offline queue'
 },
 knapp: {
-  hjem: 'Home',
+  hjem: 'Home'
 }
 };
