@@ -36,6 +36,17 @@ export default {
     modalNavn: 'Enter project name',
     modalBekreft: 'Create',
     modalAvbryt: 'Cancel',
+    oversikt: 'Site overview',
+    opprettNytt: 'Create new site',
+    visArkiverte: 'Show archived sites',
+    visAktive: 'Show active sites',
+    kolonne: {
+    anlegg: 'Site number',
+    opprettet: 'Created',
+    navn: 'Name',
+    status: 'Status'
+  },
+  ukjentDato: 'Unknown'
   },
   anleggDetalj: {
     tittel: 'Site details',
