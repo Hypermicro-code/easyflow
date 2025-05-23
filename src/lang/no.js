@@ -140,7 +140,7 @@ knapp: {
   nyMelding: 'Ny melding',
   meldinger: 'Meldinger',
   offlineKo: 'Offline-kø'
-}
+},
   admin: {
   overskrift: 'Ansattliste',
   leggTil: 'Legg til ny ansatt',
