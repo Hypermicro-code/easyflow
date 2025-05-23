@@ -8,10 +8,10 @@ import { useAuth } from '../contexts/AuthContext';
 function Home() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const { brukerdata } = useAuth();
+  const { brukerdata, lastet } = useAuth();
 
-  if (!brukerdata) {
-    return <div style={{ textAlign: 'center', marginTop: '50px' }}>{t('laster')}...</div>;
+  if (!lastet) {
+  return <div style={{ textAlign: 'center', marginTop: '50px' }}>{t('laster')}...</div>;
   }
 
   const knapper = [
