@@ -82,7 +82,7 @@ export default function Anlegg() {
     </div>
 
 {filtrertAnlegg.map((a) => (
-  <Link to={`/anlegg/${a.id}`} key={a.id} className="anleggsboble">
+  <Link to={`/anlegg/${a.id}`} key={a.id} className="bobleliste">
     <div className="kolonne liten">
       {statusEmoji(a.status, a.arkivert)}
     </div>
