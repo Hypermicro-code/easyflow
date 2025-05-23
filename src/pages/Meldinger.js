@@ -43,11 +43,12 @@ export default function Meldinger() {
       <h2>{t('meldinger.oversikt')}</h2>
       <HjemKnapp />
 
-      <div className="overskriftRad">
-        <div className="kolonne stor">{t('meldinger.kolonne.melding')}</div>
-        <div className="kolonne liten">{t('meldinger.kolonne.anlegg')}</div>
-        <div className="kolonne liten">{t('meldinger.kolonne.dato')}</div>
-      </div>
+<div className="overskriftRad">
+  <div className="kolonne stor">{t('meldinger.kolonne.melding')}</div>
+  <div className="kolonne liten">{t('meldinger.kolonne.anleggsnummer')}</div>
+  <div className="kolonne liten">{t('meldinger.kolonne.opprettet')}</div>
+  <div className="kolonne liten">{t('meldinger.kolonne.aksjon')}</div>
+</div>
 
       {meldinger.map((m) => (
         <div key={m.id} className="anleggsboble" style={{ display: 'flex', alignItems: 'center' }}>
