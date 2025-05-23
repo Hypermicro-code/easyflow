@@ -140,6 +140,6 @@ knapp: {
   offlineKo: 'Offline-kø'
 },
   knapp: {
-  hjem: 'Hjem',
+  hjem: 'Hjem'
 }
 };
