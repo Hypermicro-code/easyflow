@@ -141,4 +141,22 @@ knapp: {
   meldinger: 'Meldinger',
   offlineKo: 'Offline-kø'
 }
+  admin: {
+  overskrift: 'Ansattliste',
+  leggTil: 'Legg til ny ansatt',
+  kolonne: {
+    fornavn: 'Fornavn',
+    etternavn: 'Etternavn',
+    epost: 'E-post',
+    telefon: 'Telefon',
+    rolle: 'Rolle',
+    handling: 'Handling'
+  }
+},
+knapp: {
+  slett: 'Slett'
+},
+bekreft: {
+  slettBruker: 'Er du sikker på at du vil slette denne brukeren?'
+}
 };
