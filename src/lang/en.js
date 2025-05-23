@@ -105,6 +105,7 @@ export default {
     anleggsnummer: 'Site ID',
     opprettet: 'Created',
     aksjon: 'Action'
+    }
   },
   offlineKo: {
     tittel: 'Offline queue',
