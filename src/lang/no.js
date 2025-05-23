@@ -123,5 +123,5 @@ knapp: {
 }
   knapp: {
   hjem: 'Hjem',
-}
+},
 };
