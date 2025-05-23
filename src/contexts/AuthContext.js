@@ -14,6 +14,7 @@ export function AuthProvider({ children }) {
 useEffect(() => {
   const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
     setUser(currentUser);
+    console.log("✅ Bruker logget inn:", currentUser?.uid); 
     if (currentUser) {
       try {
         const docRef = doc(db, 'brukere', currentUser.uid);
