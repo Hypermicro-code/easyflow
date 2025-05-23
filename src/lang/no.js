@@ -117,4 +117,7 @@ knapp: {
   meldinger: 'Meldinger',
   offlineKo: 'Offline-kø'
 }
+  knapp: {
+  hjem: 'Hjem',
+}
 };
