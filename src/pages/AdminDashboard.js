@@ -1,123 +1,94 @@
-// AdminDashboard.js – forbedret visning med telefon og modal for opprettelse
-import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-import { db } from '../firebase';
-import { addDoc, collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import React, { useEffect, useState } from 'react';
+import { auth, db } from '../firebase';
+import { collection, getDocs, setDoc, doc } from 'firebase/firestore';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import Toast from '../components/Toast';
+import NavnModal from '../components/NavnModal';
 import { useTranslation } from 'react-i18next';
-import BekreftModal from '../components/BekreftModal';
-
-const secondaryAppConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-};
-
-const secondaryApp = initializeApp(secondaryAppConfig, 'Secondary');
-const secondaryAuth = getAuth(secondaryApp);
+import { useNavigate } from 'react-router-dom';
 
 function AdminDashboard() {
-  const { t } = useTranslation();
   const [brukere, setBrukere] = useState([]);
-  const [status, setStatus] = useState('');
-  const [visModal, setVisModal] = useState(false);
   const [nyBruker, setNyBruker] = useState({
     epost: '',
+    passord: '',
     rolle: 'felt',
     fornavn: '',
     etternavn: '',
     telefon: '',
     ansattnummer: ''
   });
+  const [visModal, setVisModal] = useState(false);
+  const [toast, setToast] = useState('');
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'brukere'), (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setBrukere(data);
-    });
-    return () => unsubscribe();
-  }, []);
+    const hentBrukere = async () => {
+      const querySnapshot = await getDocs(collection(db, 'brukere'));
+      const liste = querySnapshot.docs.map((doc) => doc.data());
+      setBrukere(liste);
+    };
+    hentBrukere();
+  }, [toast]);
 
-  const genererPassord = () => Math.random().toString(36).slice(-8);
-
-  const leggTilBruker = async () => {
-    const passord = genererPassord();
+  const opprettBruker = async () => {
     try {
-      const brukerCredential = await createUserWithEmailAndPassword(secondaryAuth, nyBruker.epost, passord);
-      const uid = brukerCredential.user.uid;
-      const nyData = { uid, ...nyBruker };
-      await addDoc(collection(db, 'brukere'), nyData);
-      setStatus(`✅ Bruker opprettet. Midlertidig passord: ${passord}`);
-      setNyBruker({ epost: '', rolle: 'felt', fornavn: '', etternavn: '', telefon: '', ansattnummer: '' });
+      const brukerCredential = await createUserWithEmailAndPassword(auth, nyBruker.epost, nyBruker.passord);
+      const brukerId = brukerCredential.user.uid;
+      await setDoc(doc(db, 'brukere', brukerId), {
+        uid: brukerId,
+        epost: nyBruker.epost,
+        rolle: nyBruker.rolle,
+        fornavn: nyBruker.fornavn,
+        etternavn: nyBruker.etternavn,
+        telefon: nyBruker.telefon,
+        ansattnummer: nyBruker.ansattnummer
+      });
+      setToast(t('admin.opprettet'));
       setVisModal(false);
     } catch (err) {
-      console.error(err);
-      setStatus('❌ Feil ved opprettelse: ' + err.message);
+      setToast(err.message);
     }
-  };
-
-  const oppdaterRolle = async (id, nyRolle) => {
-    try {
-      const brukerRef = doc(db, 'brukere', id);
-      await updateDoc(brukerRef, { rolle: nyRolle });
-      setStatus('✅ Rolle oppdatert');
-    } catch (err) {
-      setStatus('❌ Klarte ikke å oppdatere rolle');
-    }
-  };
-
-  const handleChange = (felt, verdi) => {
-    setNyBruker(prev => ({ ...prev, [felt]: verdi }));
   };
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>👑 Adminpanel</h2>
+      <h1>{t('admin.tittel')}</h1>
 
-      <button onClick={() => setVisModal(true)} style={{ marginBottom: '20px' }}>➕ Legg til bruker</button>
-      {status && <p>{status}</p>}
-
-      <h4>👥 Eksisterende brukere</h4>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr 2fr 1fr', fontWeight: 'bold', background: '#eee', padding: '10px', borderRadius: '10px 10px 0 0', position: 'sticky', top: 0, zIndex: 1 }}>
-        <div>Ansattnr</div>
-        <div>Navn</div>
-        <div>Telefon</div>
-        <div>E-post</div>
-        <div>Rolle</div>
+      <div style={{ marginBottom: '10px' }}>
+        <button onClick={() => navigate('/')}>🏠 Hjem</button>
       </div>
-      {brukere.map((b, index) => (
-        <div key={index} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 2fr 2fr 1fr', alignItems: 'center', gap: '10px', padding: '10px', borderBottom: '1px solid #ddd', background: '#f9f9f9' }}>
-          <div><strong>{b.ansattnummer || '-'}</strong></div>
-          <div><strong>{b.fornavn || ''} {b.etternavn || ''}</strong></div>
-          <div>{b.telefon || '-'}</div>
-          <div>{b.epost}</div>
-          <div>
-            <select value={b.rolle || 'felt'} onChange={(e) => oppdaterRolle(b.id, e.target.value)}>
-              <option value="kontor">Kontor</option>
-              <option value="felt">Felt</option>
-              <option value="admin">Admin</option>
-            </select>
-          </div>
-        </div>
-      ))}
 
-      <BekreftModal
+      <button onClick={() => setVisModal(true)}>{t('admin.leggTil')}</button>
+
+      <div style={{ marginTop: '20px' }}>
+        <h2>{t('admin.liste')}</h2>
+        {brukere.map((b, idx) => (
+          <div key={idx} style={{
+            background: '#f0f0f0',
+            border: '1px solid #ccc',
+            padding: '10px',
+            marginBottom: '10px',
+            borderRadius: '5px'
+          }}>
+            <strong>{b.ansattnummer}</strong> – {b.fornavn} {b.etternavn} – {b.telefon}<br />
+            <small>{b.epost} ({b.rolle})</small>
+          </div>
+        ))}
+      </div>
+
+      <NavnModal
         vis={visModal}
-        tittel="Opprett ny bruker"
         onLukk={() => setVisModal(false)}
-        onBekreft={leggTilBruker}
-        bekreftTekst="Opprett"
-      >
-        <input type="email" placeholder="E-post" value={nyBruker.epost} onChange={(e) => handleChange('epost', e.target.value)} />
-        <input type="text" placeholder="Fornavn" value={nyBruker.fornavn} onChange={(e) => handleChange('fornavn', e.target.value)} />
-        <input type="text" placeholder="Etternavn" value={nyBruker.etternavn} onChange={(e) => handleChange('etternavn', e.target.value)} />
-        <input type="text" placeholder="Telefon" value={nyBruker.telefon} onChange={(e) => handleChange('telefon', e.target.value)} />
-        <input type="text" placeholder="Ansattnummer" value={nyBruker.ansattnummer} onChange={(e) => handleChange('ansattnummer', e.target.value)} />
-        <select value={nyBruker.rolle} onChange={(e) => handleChange('rolle', e.target.value)}>
-          <option value="kontor">Kontor</option>
-          <option value="felt">Felt</option>
-        </select>
-      </BekreftModal>
+        onBekreft={(data) => {
+          setNyBruker(data);
+          opprettBruker();
+        }}
+        type="bruker"
+      />
+
+      {toast && <Toast melding={toast} onClose={() => setToast('')} />}
     </div>
   );
 }
