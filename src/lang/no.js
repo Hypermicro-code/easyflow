@@ -36,6 +36,17 @@ export default {
     modalNavn: 'Angi anleggsnavn',
     modalBekreft: 'Opprett',
     modalAvbryt: 'Avbryt',
+      oversikt: 'Anleggsoversikt',
+  opprettNytt: 'Opprett nytt anlegg',
+  visArkiverte: 'Vis arkiverte anlegg',
+  visAktive: 'Vis aktive anlegg',
+  kolonne: {
+    anlegg: 'Anleggsnr',
+    opprettet: 'Opprettet',
+    navn: 'Navn',
+    status: 'Status'
+  },
+  ukjentDato: 'Ukjent'
   },
   anleggDetalj: {
     tittel: 'Anleggsdetaljer',
