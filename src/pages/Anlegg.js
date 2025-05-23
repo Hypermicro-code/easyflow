@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import HjemKnapp from '../components/HjemKnapp';
 import OpprettAnleggModal from '../components/OpprettAnleggModal';
+import '../styles/Anlegg.css';
 
 export default function Anlegg() {
   const [anlegg, setAnlegg] = useState([]);
@@ -21,12 +22,10 @@ export default function Anlegg() {
         liste.push({ id: doc.id, ...doc.data() });
       });
 
-      // Filtrer ut underanlegg fra hovedlisten
       const filtrert = liste.filter(
         (a) => !a.anleggsnummer.toString().includes('-')
       );
 
-      // Sorter synkende etter anleggsnummer
       filtrert.sort((a, b) => {
         const numA = parseInt(a.anleggsnummer);
         const numB = parseInt(b.anleggsnummer);
@@ -87,7 +86,11 @@ export default function Anlegg() {
           <div className="kolonne liten">
             <strong>{a.anleggsnummer}</strong>
           </div>
-          <div className="kolonne liten">{a.opprettet}</div>
+          <div className="kolonne liten">
+            {a.opprettet
+              ? new Date(a.opprettet).toLocaleString()
+              : t('anlegg.ukjentDato')}
+          </div>
           <div className="kolonne stor">
             <strong>{a.navn}</strong>
           </div>
