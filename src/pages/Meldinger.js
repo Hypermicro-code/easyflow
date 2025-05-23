@@ -1,76 +1,62 @@
+// src/pages/Meldinger.js
 import React, { useEffect, useState } from 'react';
 import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import Toast from '../components/Toast';
-import BekreftModal from '../components/BekreftModal';
+import HjemKnapp from '../components/HjemKnapp';
+import './App.css';
 
-function Meldinger() {
+export default function Meldinger() {
   const [meldinger, setMeldinger] = useState([]);
-  const [toast, setToast] = useState('');
-  const [visModal, setVisModal] = useState(false);
-  const [meldingId, setMeldingId] = useState(null);
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const hentMeldinger = async () => {
       const querySnapshot = await getDocs(collection(db, 'meldinger'));
-      const liste = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      liste.sort((a, b) => new Date(b.tidspunkt) - new Date(a.tidspunkt));
+      const liste = [];
+      querySnapshot.forEach((doc) => {
+        liste.push({ id: doc.id, ...doc.data() });
+      });
+      liste.sort((a, b) => new Date(b.opprettet) - new Date(a.opprettet));
       setMeldinger(liste);
     };
     hentMeldinger();
-  }, [toast]);
+  }, []);
 
-  const bekreftSlett = (id) => {
-    setMeldingId(id);
-    setVisModal(true);
-  };
-
-  const slettMelding = async () => {
-    await deleteDoc(doc(db, 'meldinger', meldingId));
-    setToast(t('meldinger.slettet'));
-    setVisModal(false);
-    setMeldingId(null);
+  const slettMelding = async (id) => {
+    await deleteDoc(doc(db, 'meldinger', id));
+    setMeldinger(meldinger.filter((m) => m.id !== id));
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>{t('meldinger.tittel')}</h1>
+    <div className="innhold">
+      <h2>{t('meldinger.oversikt')}</h2>
+      <HjemKnapp />
 
-      <div style={{ marginBottom: '10px' }}>
-        <button onClick={() => navigate('/')}>🏠 Hjem</button>
+      <div className="overskriftRad">
+        <div className="kolonne stor">{t('meldinger.kolonne.melding')}</div>
+        <div className="kolonne liten">{t('meldinger.kolonne.anlegg')}</div>
+        <div className="kolonne liten">{t('meldinger.kolonne.opprettet')}</div>
+        <div className="kolonne liten">{t('meldinger.kolonne.slett')}</div>
       </div>
 
-      {meldinger.map((m) => (
-        <div key={m.id} style={{
-          background: '#f9f9f9',
-          border: '1px solid #ddd',
-          padding: '10px',
-          marginBottom: '10px',
-          borderRadius: '5px'
-        }}>
-          <strong>{m.anleggsnummer}</strong><br />
-          <small>{new Date(m.tidspunkt).toLocaleString()}</small>
-          <p>{m.melding}</p>
-          <button onClick={() => bekreftSlett(m.id)}>{t('knapp.slett')}</button>
+      {meldinger.map((melding) => (
+        <div key={melding.id} className="bobleliste">
+          <div className="kolonne stor">{melding.tekst}</div>
+          <div className="kolonne liten">{melding.anleggsnummer}</div>
+          <div className="kolonne liten">
+            {melding.opprettet?.split('T')[0] ?? ''}
+          </div>
+          <div className="kolonne liten">
+            <button
+              onClick={() => slettMelding(melding.id)}
+              className="rødKnapp"
+            >
+              {t('knapp.slett')}
+            </button>
+          </div>
         </div>
       ))}
-
-      {toast && <Toast melding={toast} onClose={() => setToast('')} />}
-      <BekreftModal
-        vis={visModal}
-        melding={t('meldinger.bekreft')}
-        onBekreft={slettMelding}
-        onAvbryt={() => setVisModal(false)}
-      />
     </div>
   );
 }
-
-export default Meldinger;
