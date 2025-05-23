@@ -153,9 +153,6 @@ knapp: {
     handling: 'Handling'
   }
 },
-knapp: {
-  slett: 'Slett'
-},
 bekreft: {
   slettBruker: 'Er du sikker på at du vil slette denne brukeren?'
 }
