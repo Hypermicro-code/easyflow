@@ -55,7 +55,7 @@ export default function Meldinger() {
           <div className="kolonne liten">{m.anleggsnummer}</div>
           <div className="kolonne liten">{formatDato(m.opprettet)}</div>
           <div style={{ marginLeft: 'auto', paddingRight: '8px' }}>
-            <button onClick={() => slettMelding(m.id)} className="blaKnapp" style={{ padding: '4px 8px' }}>
+            <button onClick={() => slettMelding(m.id)} className="rødKnapp" style={{ padding: '4px 8px' }}>
               {t('knapp.slett')}
             </button>
           </div>
