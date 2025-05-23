@@ -31,7 +31,11 @@ export default {
     arkiverteTittel: 'Arkiverte anlegg',
     visArkiverte: 'Vis arkiverte anlegg',
     visAktive: 'Vis aktive anlegg',
-   ingenArkiverte: 'Ingen arkiverte anlegg tilgjengelig'
+    ingenArkiverte: 'Ingen arkiverte anlegg tilgjengelig'
+    modalTittel: 'Opprett nytt anlegg',
+    modalNavn: 'Angi anleggsnavn',
+    modalBekreft: 'Opprett',
+    modalAvbryt: 'Avbryt',
   },
   anleggDetalj: {
     tittel: 'Anleggsdetaljer',
