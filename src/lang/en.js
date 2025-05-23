@@ -141,5 +141,22 @@ export default {
   meldinger: 'Messages',
   offlineKo: 'Offline queue'
 }
-
+admin: {
+  overskrift: 'List of Employees',
+  leggTil: 'Add new employee',
+  kolonne: {
+    fornavn: 'First name',
+    etternavn: 'Last name',
+    epost: 'E-mail',
+    telefon: 'Phone number',
+    rolle: 'Role',
+    handling: 'Action'
+  }
+},
+knapp: {
+  slett: 'Delete'
+},
+bekreft: {
+  slettBruker: 'Do you really want to delete this user?'
+}
 };
