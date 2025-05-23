@@ -1,96 +1,81 @@
+// src/pages/AdminDashboard.js
 import React, { useEffect, useState } from 'react';
-import { auth, db } from '../firebase';
-import { collection, getDocs, setDoc, doc } from 'firebase/firestore';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import Toast from '../components/Toast';
-import NavnModal from '../components/NavnModal';
+import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import HjemKnapp from '../components/HjemKnapp';
+import NavnModal from '../components/NavnModal';
+import '../styles/App.css';
 
-function AdminDashboard() {
+export default function AdminDashboard() {
   const [brukere, setBrukere] = useState([]);
-  const [nyBruker, setNyBruker] = useState({
-    epost: '',
-    passord: '',
-    rolle: 'felt',
-    fornavn: '',
-    etternavn: '',
-    telefon: '',
-    ansattnummer: ''
-  });
   const [visModal, setVisModal] = useState(false);
-  const [toast, setToast] = useState('');
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const hentBrukere = async () => {
       const querySnapshot = await getDocs(collection(db, 'brukere'));
-      const liste = querySnapshot.docs.map((doc) => doc.data());
+      const liste = [];
+      querySnapshot.forEach((doc) => {
+        liste.push({ id: doc.id, ...doc.data() });
+      });
+
+      // Sorter etter etternavn og fornavn
+      liste.sort((a, b) =>
+        (a.etternavn || '').localeCompare(b.etternavn || '') ||
+        (a.fornavn || '').localeCompare(b.fornavn || '')
+      );
+
       setBrukere(liste);
     };
-    hentBrukere();
-  }, [toast]);
 
-  const opprettBruker = async () => {
-    try {
-      const brukerCredential = await createUserWithEmailAndPassword(auth, nyBruker.epost, nyBruker.passord);
-      const brukerId = brukerCredential.user.uid;
-      await setDoc(doc(db, 'brukere', brukerId), {
-        uid: brukerId,
-        epost: nyBruker.epost,
-        rolle: nyBruker.rolle,
-        fornavn: nyBruker.fornavn,
-        etternavn: nyBruker.etternavn,
-        telefon: nyBruker.telefon,
-        ansattnummer: nyBruker.ansattnummer
-      });
-      setToast(t('admin.opprettet'));
-      setVisModal(false);
-    } catch (err) {
-      setToast(err.message);
+    hentBrukere();
+  }, [visModal]);
+
+  const slettBruker = async (id) => {
+    const bekreft = window.confirm(t('bekreft.slettBruker'));
+    if (bekreft) {
+      await deleteDoc(doc(db, 'brukere', id));
+      setBrukere(brukere.filter((b) => b.id !== id));
     }
   };
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>{t('admin.tittel')}</h1>
+    <div className="innhold">
+      <h2>{t('admin.overskrift')}</h2>
+      <HjemKnapp />
+      <button onClick={() => setVisModal(true)} className="blaKnapp">
+        {t('admin.leggTil')}
+      </button>
 
-      <div style={{ marginBottom: '10px' }}>
-        <button onClick={() => navigate('/')}>🏠 Hjem</button>
+      <div className="overskriftRad">
+        <div className="kolonne stor">{t('admin.kolonne.fornavn')}</div>
+        <div className="kolonne stor">{t('admin.kolonne.etternavn')}</div>
+        <div className="kolonne stor">{t('admin.kolonne.epost')}</div>
+        <div className="kolonne liten">{t('admin.kolonne.telefon')}</div>
+        <div className="kolonne liten">{t('admin.kolonne.rolle')}</div>
+        <div className="kolonne liten">{t('admin.kolonne.handling')}</div>
       </div>
 
-      <button onClick={() => setVisModal(true)}>{t('admin.leggTil')}</button>
-
-      <div style={{ marginTop: '20px' }}>
-        <h2>{t('admin.liste')}</h2>
-        {brukere.map((b, idx) => (
-          <div key={idx} style={{
-            background: '#f0f0f0',
-            border: '1px solid #ccc',
-            padding: '10px',
-            marginBottom: '10px',
-            borderRadius: '5px'
-          }}>
-            <strong>{b.ansattnummer}</strong> – {b.fornavn} {b.etternavn} – {b.telefon}<br />
-            <small>{b.epost} ({b.rolle})</small>
+      {brukere.map((b) => (
+        <div key={b.id} className="anleggsboble">
+          <div className="kolonne stor"><strong>{b.fornavn || '-'}</strong></div>
+          <div className="kolonne stor"><strong>{b.etternavn || '-'}</strong></div>
+          <div className="kolonne stor">{b.epost}</div>
+          <div className="kolonne liten">{b.telefon || '-'}</div>
+          <div className="kolonne liten">{b.rolle}</div>
+          <div className="kolonne liten">
+            <button
+              onClick={() => slettBruker(b.id)}
+              className="rødKnapp litenKnapp"
+            >
+              {t('knapp.slett')}
+            </button>
           </div>
-        ))}
-      </div>
+        </div>
+      ))}
 
-      <NavnModal
-        vis={visModal}
-        onLukk={() => setVisModal(false)}
-        onBekreft={(data) => {
-          setNyBruker(data);
-          opprettBruker();
-        }}
-        type="bruker"
-      />
-
-      {toast && <Toast melding={toast} onClose={() => setToast('')} />}
+      <NavnModal vis={visModal} onLukk={() => setVisModal(false)} />
     </div>
   );
 }
-
-export default AdminDashboard;
