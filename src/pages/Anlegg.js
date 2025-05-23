@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import HjemKnapp from '../components/HjemKnapp';
 import OpprettAnleggModal from '../components/OpprettAnleggModal';
-import '../styles/Anlegg.css';
+import '../App.css';
 
 export default function Anlegg() {
   const [anlegg, setAnlegg] = useState([]);
