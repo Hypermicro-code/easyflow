@@ -105,6 +105,7 @@ knapp: {
     anleggsnummer: 'Anleggsnr',
     opprettet: 'Opprettet',
     aksjon: 'Handling'
+    }
   },
   offlineKo: {
     tittel: 'Offline-kø',
