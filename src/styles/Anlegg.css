@@ -1,34 +1,28 @@
-.innhold {
-  padding: 20px;
+/* src/App.css */
+
+/* Felles boble-stil for alle lister */
+.bobleliste {
+  display: flex;
+  align-items: center;
+  background-color: #e9f1ff;
+  padding: 4px 8px;
+  margin-bottom: 6px;
+  border: 1px solid #c7ddff;
+  border-radius: 6px;
+  text-decoration: none;
+  color: black;
+  height: 28px;
 }
 
 .overskriftRad {
   display: flex;
   font-weight: bold;
-  margin-bottom: 10px;
-  background-color: #e6f0ff;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-.anleggsboble {
-  display: flex;
-  align-items: center;
-  padding: 4px 8px;
+  background-color: #e9f1ff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-top: 20px;
   margin-bottom: 8px;
-  background-color: #e6f0ff;
-  border: 1px solid #b3d1ff;
-  border-radius: 8px;
-  text-decoration: none;
-  color: black;
-  transition: background-color 0.2s ease;
-  min-height: 28px; /* gir litt polstring men holder det lavt */
 }
-
-.anleggsboble:hover {
-  background-color: #d0e4ff;
-}
-
 
 .kolonne {
   padding: 0 10px;
@@ -38,30 +32,52 @@
 
 .kolonne.liten {
   width: 80px;
+  justify-content: center;
 }
 
 .kolonne.stor {
-  flex: 1;
+  flex-grow: 1;
+  justify-content: flex-start;
 }
 
-.blaKnapp,
-.secondaryKnapp {
-  background-color: #007bff;
+/* Knapper */
+.blaKnapp {
+  background-color: #4f95f8;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 6px 12px;
   border-radius: 6px;
+  margin: 6px 4px 6px 0;
   cursor: pointer;
-  margin-right: 10px;
-  margin-bottom: 10px;
-  font-size: 14px;
 }
 
 .secondaryKnapp {
-  background-color: #5a9df8;
+  background-color: #d8e6fd;
+  color: #333;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin: 6px 4px 6px 0;
+  cursor: pointer;
 }
 
-.blaKnapp:hover,
-.secondaryKnapp:hover {
-  background-color: #006ae6;
+.roedKnapp {
+  background-color: #f87171;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  cursor: pointer;
+}
+
+/* Hjem-knapp spesial */
+.hjemKnapp {
+  background-color: #4f95f8;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  cursor: pointer;
 }
