@@ -89,7 +89,9 @@ export default function Anlegg() {
     <div className="kolonne liten">
       <strong>{a.anleggsnummer}</strong>
     </div>
-    <div className="kolonne liten">{a.opprettet?.split(',')[0]}</div>
+    <div className="kolonne liten">
+  {a.opprettet ? new Date(a.opprettet).toLocaleDateString('no-NO') : ''}
+</div>
     <div className="kolonne stor">
       <strong>{a.navn}</strong>
     </div>
