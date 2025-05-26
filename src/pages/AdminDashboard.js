@@ -58,7 +58,7 @@ export default function AdminDashboard() {
       </div>
 
       {brukere.map((b) => (
-        <div key={b.id} className="anleggsboble">
+        <div key={b.id} className="ansattBoble">
           <div className="kolonne stor"><strong>{b.fornavn || '-'}</strong></div>
           <div className="kolonne stor"><strong>{b.etternavn || '-'}</strong></div>
           <div className="kolonne stor">{b.epost}</div>
