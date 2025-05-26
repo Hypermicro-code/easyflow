@@ -70,6 +70,7 @@ export default {
     bekreftBildeSlett: 'Delete this image?',
     informasjon: 'Information',
     opprettUnderanlegg: 'Create sub site',
+    tilbake: 'Back',
     underanlegg: 'Sub site',
     angiNavnUnderanlegg: 'Enter name for the sub site:',
     opprettUnderanlegg: 'Create sub-project',
