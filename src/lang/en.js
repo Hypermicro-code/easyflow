@@ -160,7 +160,7 @@ admin: {
   modalAnsattnummer: 'Employee number',
   modalFelt: 'Field',
   modalKontor: 'Office',
-  modalAvbryt: 'Abort',
+  modalAvbryt: 'Cancel',
   modalOpprett: 'Create'
   }
 },
