@@ -70,6 +70,7 @@ export default {
     bekreftBildeSlett: 'Slette dette bildet?',
     informasjon: 'Informasjon',
     opprettUnderanlegg: 'Opprett under-anlegg',
+    tilbake: 'Tilbake',
     underanlegg: 'Underanlegg',
     angiNavnUnderanlegg: 'Skriv inn navn for underanlegget:',
       opprettUnderanlegg: 'Opprett under-anlegg',
