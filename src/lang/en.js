@@ -151,7 +151,17 @@ admin: {
     epost: 'E-mail',
     telefon: 'Phone number',
     rolle: 'Role',
-    handling: 'Action'
+    handling: 'Action',
+      modalTittel: 'Register new employee',
+  modalFornavn: 'First name',
+  modalEtternavn: 'Last name',
+  modalEpost: 'Email adress',
+  modalTelefon: 'Telephone nnumber',
+  modalAnsattnummer: 'Employee number',
+  modalFelt: 'Field',
+  modalKontor: 'Office',
+  modalAvbryt: 'Abort',
+  modalOpprett: 'Create'
   }
 },
 bekreft: {
