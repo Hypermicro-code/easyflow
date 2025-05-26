@@ -81,4 +81,3 @@ export default function OpprettAnsattModal({ vis, onLukk, onBekreft }) {
     </div>
   );
 }
-export default OpprettAnsattModal;
