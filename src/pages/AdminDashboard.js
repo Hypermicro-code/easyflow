@@ -5,7 +5,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTranslation } from 'react-i18next';
 import OpprettAnsattModal from '../components/OpprettAnsattModal';
-import HjemKnapp from '../components/HjemKnapp',
+import HjemKnapp from '../components/HjemKnapp';
 import '../App.css';
 
 export default function AdminDashboard() {
