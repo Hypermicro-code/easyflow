@@ -46,7 +46,7 @@ export default function AdminDashboard() {
       {brukere.map((b) => (
         <div key={b.id} className="bobleliste">
           <div className="kolonne stor">
-  <Link to={`/ansatt/${b.id}`} className="navnLenke">{b.navn}</Link>
+  <Link to={`/ansatt/${b.id}`} className="navnLenke">{b.fornavn} {b.etternavn}</Link>
 </div>
           <div className="kolonne stor">{b.telefon || '–'}</div>
           <div className="kolonne stor">{b.epost || '–'}</div>
