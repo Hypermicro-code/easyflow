@@ -146,6 +146,7 @@ admin: {
   overskrift: 'List of Employees',
   leggTil: 'Add new employee',
   kolonne: {
+    navn: 'Name',
     fornavn: 'First name',
     etternavn: 'Last name',
     epost: 'E-mail',
