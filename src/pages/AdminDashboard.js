@@ -28,11 +28,11 @@ useEffect(() => {
         console.warn('⚠️ Ingen brukere funnet i Firestore.');
       }
 
-      liste.sort((a, b) => {
-        const navnA = (a.fornavn + a.etternavn).toLowerCase();
-        const navnB = (b.fornavn + b.etternavn).toLowerCase();
-        return navnA.localeCompare(navnB);
-      });
+liste.sort((a, b) => {
+  const navnA = ((a.fornavn || '') + (a.etternavn || '')).toLowerCase();
+  const navnB = ((b.fornavn || '') + (b.etternavn || '')).toLowerCase();
+  return navnA.localeCompare(navnB);
+});
 
       setBrukere(liste);
     } catch (error) {
