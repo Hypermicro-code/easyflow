@@ -15,19 +15,25 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const hentBrukere = async () => {
-      const querySnapshot = await getDocs(collection(db, 'brukere'));
-      const liste = [];
-      querySnapshot.forEach((doc) => {
-        liste.push({ id: doc.id, ...doc.data() });
-      });
+      try {
+        const querySnapshot = await getDocs(collection(db, 'brukere'));
+        const liste = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          liste.push({ id: doc.id, ...data });
+        });
 
-      liste.sort((a, b) => {
-        const navnA = (a.fornavn + a.etternavn).toLowerCase();
-        const navnB = (b.fornavn + b.etternavn).toLowerCase();
-        return navnA.localeCompare(navnB);
-      });
+        // Sorter alfabetisk etter fornavn + etternavn
+        liste.sort((a, b) => {
+          const navnA = (a.fornavn + a.etternavn).toLowerCase();
+          const navnB = (b.fornavn + b.etternavn).toLowerCase();
+          return navnA.localeCompare(navnB);
+        });
 
-      setBrukere(liste);
+        setBrukere(liste);
+      } catch (error) {
+        console.error('🚨 Feil ved henting av brukere:', error);
+      }
     };
 
     hentBrukere();
@@ -50,6 +56,7 @@ export default function AdminDashboard() {
     <div className="innhold">
       <h2>{t('admin.overskrift')}</h2>
       <HjemKnapp />
+
       <button onClick={() => setVisModal(true)} className="blaKnapp">
         {t('admin.leggTil')}
       </button>
@@ -66,8 +73,8 @@ export default function AdminDashboard() {
           <div className="kolonne stor">
             <strong>{b.fornavn} {b.etternavn}</strong>
           </div>
-          <div className="kolonne stor">{b.telefon}</div>
-          <div className="kolonne stor">{b.epost}</div>
+          <div className="kolonne stor">{b.telefon || '—'}</div>
+          <div className="kolonne stor">{b.epost || '—'}</div>
           <div className="kolonne liten">{rolleEmoji(b.rolle)}</div>
         </Link>
       ))}
