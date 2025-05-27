@@ -143,7 +143,7 @@ export default {
   offlineKo: 'Offline queue'
 },
 admin: {
-  overskrift: 'List of Employees',
+  oversikt: 'List of Employees',
   leggTil: 'Add new employee',
   kolonne: {
     navn: 'Name',
