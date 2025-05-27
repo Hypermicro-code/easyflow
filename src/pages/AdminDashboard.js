@@ -1,6 +1,6 @@
 // src/pages/AdminDashboard.js
 import React, { useEffect, useState } from 'react';
-import { collection, getDocs, addDoc } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTranslation } from 'react-i18next';
 import OpprettAnsattModal from '../components/OpprettAnsattModal';
@@ -19,54 +19,39 @@ export default function AdminDashboard() {
       querySnapshot.forEach((doc) => {
         liste.push({ id: doc.id, ...doc.data() });
       });
+
+      liste.sort((a, b) => a.navn?.localeCompare(b.navn || '') || 0);
       setBrukere(liste);
     };
 
     hentBrukere();
   }, [visModal]);
 
-  const håndterOpprett = async (nyBruker) => {
-    try {
-      await addDoc(collection(db, 'brukere'), nyBruker);
-      setVisModal(false);
-    } catch (err) {
-      console.error('❌ Feil ved opprettelse av bruker:', err);
-    }
-  };
-
   return (
     <div className="innhold">
-      <h2>{t('admin.overskrift')}</h2>
+      <h2>{t('admin.oversikt')}</h2>
       <HjemKnapp />
       <button className="blaKnapp" onClick={() => setVisModal(true)}>
-        {t('admin.leggTilAnsatt')}
+        {t('admin.leggTil')}
       </button>
 
       <div className="overskriftRad">
-        <div className="kolonne liten">ID</div>
-        <div className="kolonne stor">{t('admin.navn')}</div>
-        <div className="kolonne stor">{t('admin.epost')}</div>
-        <div className="kolonne liten">{t('admin.telefon')}</div>
-        <div className="kolonne liten">{t('admin.rolle')}</div>
+        <div className="kolonne liten">{t('admin.kolonne.rolle')}</div>
+        <div className="kolonne stor">{t('admin.kolonne.navn')}</div>
+        <div className="kolonne stor">{t('admin.kolonne.telefon')}</div>
+        <div className="kolonne stor">{t('admin.kolonne.epost')}</div>
       </div>
 
       {brukere.map((b) => (
-        <div className="bobleliste" key={b.id}>
-          <div className="kolonne liten">{b.ansattnummer || b.id.slice(0, 6)}</div>
-          <div className="kolonne stor">
-            {b.fornavn} {b.etternavn}
-          </div>
-          <div className="kolonne stor">{b.epost}</div>
-          <div className="kolonne liten">{b.telefon}</div>
-          <div className="kolonne liten">{b.rolle}</div>
+        <div key={b.id} className="bobleliste">
+          <div className="kolonne liten">{b.rolle || '–'}</div>
+          <div className="kolonne stor">{b.navn || '–'}</div>
+          <div className="kolonne stor">{b.telefon || '–'}</div>
+          <div className="kolonne stor">{b.epost || '–'}</div>
         </div>
       ))}
 
-      <OpprettAnsattModal
-        vis={visModal}
-        onLukk={() => setVisModal(false)}
-        onBekreft={håndterOpprett}
-      />
+      <OpprettAnsattModal vis={visModal} onLukk={() => setVisModal(false)} />
     </div>
   );
 }
