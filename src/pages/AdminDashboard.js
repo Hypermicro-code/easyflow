@@ -13,31 +13,36 @@ export default function AdminDashboard() {
   const [brukere, setBrukere] = useState([]);
   const [visModal, setVisModal] = useState(false);
 
-  useEffect(() => {
-    const hentBrukere = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'brukere'));
-        const liste = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          liste.push({ id: doc.id, ...data });
-        });
+useEffect(() => {
+  const hentBrukere = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'brukere'));
+      const liste = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        console.log('🔍 Bruker funnet i Firestore:', data); // 👉 LEGG MERKE TIL DETTE
+        liste.push({ id: doc.id, ...data });
+      });
 
-        // Sorter alfabetisk etter fornavn + etternavn
-        liste.sort((a, b) => {
-          const navnA = (a.fornavn + a.etternavn).toLowerCase();
-          const navnB = (b.fornavn + b.etternavn).toLowerCase();
-          return navnA.localeCompare(navnB);
-        });
-
-        setBrukere(liste);
-      } catch (error) {
-        console.error('🚨 Feil ved henting av brukere:', error);
+      if (liste.length === 0) {
+        console.warn('⚠️ Ingen brukere funnet i Firestore.');
       }
-    };
 
-    hentBrukere();
-  }, [visModal]);
+      liste.sort((a, b) => {
+        const navnA = (a.fornavn + a.etternavn).toLowerCase();
+        const navnB = (b.fornavn + b.etternavn).toLowerCase();
+        return navnA.localeCompare(navnB);
+      });
+
+      setBrukere(liste);
+    } catch (error) {
+      console.error('🚨 Feil ved henting av brukere:', error);
+    }
+  };
+
+  hentBrukere();
+}, [visModal]);
+
 
   const rolleEmoji = (rolle) => {
     switch (rolle) {
