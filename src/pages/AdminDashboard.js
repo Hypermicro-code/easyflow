@@ -53,8 +53,8 @@ export default function AdminDashboard() {
   <div className="kolonne stor">{b.epost}</div>
   <div className="kolonne liten">{rolleEmoji(b.rolle)}</div>
 </Link>
-
+))}
       <OpprettAnsattModal vis={visModal} onLukk={() => setVisModal(false)} />
     </div>
-  ),
+  );
 }
