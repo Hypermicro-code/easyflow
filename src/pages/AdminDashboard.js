@@ -36,18 +36,18 @@ export default function AdminDashboard() {
       </button>
 
       <div className="overskriftRad">
-        <div className="kolonne liten">{t('admin.kolonne.rolle')}</div>
         <div className="kolonne stor">{t('admin.kolonne.navn')}</div>
         <div className="kolonne stor">{t('admin.kolonne.telefon')}</div>
         <div className="kolonne stor">{t('admin.kolonne.epost')}</div>
+         <div className="kolonne liten">{t('admin.kolonne.rolle')}</div>
       </div>
 
       {brukere.map((b) => (
         <div key={b.id} className="bobleliste">
-          <div className="kolonne liten">{b.rolle || '–'}</div>
           <div className="kolonne stor">{b.navn || '–'}</div>
           <div className="kolonne stor">{b.telefon || '–'}</div>
           <div className="kolonne stor">{b.epost || '–'}</div>
+         <div className="kolonne liten">{b.rolle || '–'}</div>
         </div>
       ))}
 
