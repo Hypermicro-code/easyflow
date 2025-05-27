@@ -143,7 +143,7 @@ knapp: {
   offlineKo: 'Offline-kø'
 },
   admin: {
-  overskrift: 'Ansattliste',
+  oversikt: 'Ansattliste',
   leggTil: 'Legg til ny ansatt',
   kolonne: {
     navn: 'Navn',
