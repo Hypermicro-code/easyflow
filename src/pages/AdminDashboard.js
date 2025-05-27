@@ -45,14 +45,14 @@ export default function AdminDashboard() {
 
       {brukere.map((b) => (
         <div key={b.id} className="bobleliste">
-          <div className="kolonne stor">
-  <Link to={`/ansatt/${b.id}`} className="navnLenke">{b.fornavn} {b.etternavn}</Link>
-</div>
-          <div className="kolonne stor">{b.telefon || '–'}</div>
-          <div className="kolonne stor">{b.epost || '–'}</div>
-         <div className="kolonne liten">{b.rolle || '–'}</div>
-        </div>
-      ))}
+          <Link to={`/ansatt/${b.id}`} key={b.id} className="bobleliste">
+  <div className="kolonne stor">
+    <strong>{b.fornavn} {b.etternavn}</strong>
+  </div>
+  <div className="kolonne stor">{b.telefon}</div>
+  <div className="kolonne stor">{b.epost}</div>
+  <div className="kolonne liten">{rolleEmoji(b.rolle)}</div>
+</Link>
 
       <OpprettAnsattModal vis={visModal} onLukk={() => setVisModal(false)} />
     </div>
