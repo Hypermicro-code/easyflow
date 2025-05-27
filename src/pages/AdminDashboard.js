@@ -1,11 +1,11 @@
 // src/pages/AdminDashboard.js
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTranslation } from 'react-i18next';
 import OpprettAnsattModal from '../components/OpprettAnsattModal';
 import HjemKnapp from '../components/HjemKnapp';
+import { Link } from 'react-router-dom';
 import '../App.css';
 
 export default function AdminDashboard() {
@@ -20,41 +20,33 @@ export default function AdminDashboard() {
       querySnapshot.forEach((doc) => {
         liste.push({ id: doc.id, ...doc.data() });
       });
-
-      liste.sort((a, b) => a.navn?.localeCompare(b.navn || '') || 0);
       setBrukere(liste);
     };
 
     hentBrukere();
   }, [visModal]);
 
+  const rolleEmoji = (rolle) => {
+    switch (rolle) {
+      case 'admin':
+        return '👑';
+      case 'kontor':
+        return '🧑‍💼';
+      case 'felt':
+        return '👷';
+      default:
+        return '❓';
+    }
+  };
+
   return (
     <div className="innhold">
-      <h2>{t('admin.oversikt')}</h2>
+      <h2>{t('admin.overskrift')}</h2>
       <HjemKnapp />
-      <button className="blaKnapp" onClick={() => setVisModal(true)}>
-        {t('admin.leggTil')}
+      <button onClick={() => setVisModal(true)} className="blaKnapp">
+        {t('admin.opprett')}
       </button>
 
       <div className="overskriftRad">
         <div className="kolonne stor">{t('admin.kolonne.navn')}</div>
-        <div className="kolonne stor">{t('admin.kolonne.telefon')}</div>
-        <div className="kolonne stor">{t('admin.kolonne.epost')}</div>
-         <div className="kolonne liten">{t('admin.kolonne.rolle')}</div>
-      </div>
-
-      {brukere.map((b) => (
-        <div key={b.id} className="bobleliste">
-          <Link to={`/ansatt/${b.id}`} key={b.id} className="bobleliste">
-  <div className="kolonne stor">
-    <strong>{b.fornavn} {b.etternavn}</strong>
-  </div>
-  <div className="kolonne stor">{b.telefon}</div>
-  <div className="kolonne stor">{b.epost}</div>
-  <div className="kolonne liten">{rolleEmoji(b.rolle)}</div>
-</Link>
-))}
-      <OpprettAnsattModal vis={visModal} onLukk={() => setVisModal(false)} />
-    </div>
-  );
-}
+        <div class
