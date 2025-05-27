@@ -117,3 +117,12 @@
   flex-grow: 1;
   justify-content: flex-start;
 }
+.navnLenke {
+  color: #0366d6;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.navnLenke:hover {
+  text-decoration: underline;
+}
