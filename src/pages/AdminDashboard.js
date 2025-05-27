@@ -56,5 +56,5 @@ export default function AdminDashboard() {
 
       <OpprettAnsattModal vis={visModal} onLukk={() => setVisModal(false)} />
     </div>
-  );
+  ),
 }
