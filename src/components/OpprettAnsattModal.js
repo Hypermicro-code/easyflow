@@ -44,7 +44,7 @@ export default function OpprettAnsattModal({ vis, onLukk }) {
   return (
     <div className="modalBakgrunn">
       <div className="modalBoks">
-        <h3>{t('admin.modalTittel')}</h3>
+        <h2>{t('admin.modalTittel')}</h3>
         <input
           type="text"
           placeholder={t('admin.modalFornavn')}
