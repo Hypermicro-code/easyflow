@@ -146,6 +146,7 @@ knapp: {
   overskrift: 'Ansattliste',
   leggTil: 'Legg til ny ansatt',
   kolonne: {
+    navn: 'Navn',
     fornavn: 'Fornavn',
     etternavn: 'Etternavn',
     epost: 'E-post',
