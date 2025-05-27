@@ -152,16 +152,15 @@ knapp: {
     telefon: 'Telefon',
     rolle: 'Rolle',
     handling: 'Handling',
-      modalTittel: 'Opprett ny ansatt',
+  modalTittel: 'Opprett ny ansatt',
   modalFornavn: 'Fornavn',
   modalEtternavn: 'Etternavn',
-  modalEpost: 'E-postadresse',
   modalTelefon: 'Telefonnummer',
-  modalAnsattnummer: 'Ansattnummer',
-  modalFelt: 'Felt',
-  modalKontor: 'Kontor',
+  modalEpost: 'E-post',
+  modalFelt: 'Feltbruker',
+  modalKontor: 'Kontorbruker',
+  modalOpprett: 'Opprett',
   modalAvbryt: 'Avbryt',
-  modalOpprett: 'Opprett'
   }
 },
 bekreft: {
