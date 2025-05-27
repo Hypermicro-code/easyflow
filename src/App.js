@@ -10,6 +10,7 @@ import OfflineKo from './pages/OfflineKo';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
+import AnsattDetalj from './pages/AnsattDetalj';
 import { auth } from './firebase';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
@@ -41,6 +42,7 @@ function App() {
         <Route path="/meldinger" element={<Meldinger />} />
         <Route path="/offline" element={<OfflineKo />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/ansatt/:id" element={<AnsattDetalj />} />
       </Routes>
     </div>
   );
