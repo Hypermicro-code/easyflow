@@ -1,10 +1,11 @@
 // src/pages/AdminDashboard.js
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useTranslation } from 'react-i18next';
 import OpprettAnsattModal from '../components/OpprettAnsattModal';
-import HjemKnapp from '../components/HjemKnapp';
+import HjemKnapp from '../components/HjemKnapp',
 import '../App.css';
 
 export default function AdminDashboard() {
@@ -44,7 +45,9 @@ export default function AdminDashboard() {
 
       {brukere.map((b) => (
         <div key={b.id} className="bobleliste">
-          <div className="kolonne stor">{b.navn || '–'}</div>
+          <div className="kolonne stor">
+  <Link to={`/ansatt/${b.id}`} className="navnLenke">{b.navn}</Link>
+</div>
           <div className="kolonne stor">{b.telefon || '–'}</div>
           <div className="kolonne stor">{b.epost || '–'}</div>
          <div className="kolonne liten">{b.rolle || '–'}</div>
